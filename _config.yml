@@ -19,8 +19,8 @@ locale                   : "en-US"
 title                    : "Searching for 42..."
 title_separator          : "-"
 subtitle                 : # site tagline that appears below site title in masthead
-name                     : "Demian"
-description              : "A seeker of 42"
+name                     : "Curie"
+description              : "An amazing website."
 url                      : "https://theanswer-42.github.io/" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
@@ -93,8 +93,8 @@ analytics:
 
 # Site Author
 author:
-  name             : "Demian"
-  avatar           : "/assets/img/42.png" # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
+  name             : "Curie"
+  avatar           : "/assets/images/42.png" # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
   bio              : "I am a seeker of **42**"
   location         : "South Korea"
   email            :
@@ -113,7 +113,7 @@ author:
       # url: "https://facebook.com/"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
-      url: "https://github.com/theanswer-42"
+      url: "https://github.com/TheAnswer-42/"
     - label: "Instagram"
       icon: "fab fa-fw fa-instagram"
       # url: "https://instagram.com/"
@@ -129,7 +129,7 @@ footer:
       # url:
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
-      url: "https://github.com/theanswer-42"
+      url: "https://github.com/TheAnswer-42/"
     - label: "GitLab"
       icon: "fab fa-fw fa-gitlab"
       # url:
