@@ -806,8 +806,9 @@ img {
   max-width: 100%;
 }
 
+/* hyperlink */
 a {
-  color: #87314e;
+  color: #0000cc;
 }
 
 /* > operator */

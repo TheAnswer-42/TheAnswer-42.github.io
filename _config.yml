@@ -1,4 +1,4 @@
-title: Searching for 42...
+title: pale_blue_dot
 email: animecult@naver.com
 description: > # this means to ignore newlines until "baseurl:"
   Write an awesome description for your new site here. You can edit this
@@ -11,7 +11,7 @@ url: "https://theanswer-42.github.io/" # the base hostname & protocol for your s
 # Author settings
 author: Curie # add your name
 author-pic: 42.png
-about-author: I am Curie, a seeker of the 42.
+about-author: Searching for 42...
 
 # Contact links
 email: animecult@naver.com # Add your Email address
