@@ -1,0 +1,254 @@
+I"�e<p>[MIT OCW 6.009] Fundamentals of Programming 강의의 두 번째 문제, <a href="https://py.mit.edu/fall19/labs/lab2">Lab 2: Bacon Number</a>를 풀어보자.</p>
+
+<p><em>Six Degrees of Separation</em> 이란 지구상의 한 사람과 다른 한 사람 간에는 최대 6명의 사람이 있다는 이론이다. 본 이론의 할리우드 버전이 바로 <em>Bacon number</em> 다. 배우 Kevin Bacon은 0의 Bacon number를 갖는다. Kevin Bacon과 같은 영화에 출연한 배우는 1의 Bacon number를 갖는다. Kevin Bacon과 같은 영화에 출연한 배우와 같은 영화에 출연한 배우는 2의 Bacon number를 갖는다. 즉, 어떤 배우의 Bacon number는 <em>그 배우를 Kevin Bacon과 떨어뜨려 놓는 최소 영화 수</em> 로 정의된다.</p>
+
+<p>배우-영화 데이터는 list로 제공된다. 이 list는 <code class="highlighter-rouge">[actor_id_1, actor_id_2, film_id]</code> 형태의 list를 원소로 가지며, 이는 <code class="highlighter-rouge">actor_id_1</code>의 배우와 <code class="highlighter-rouge">actor_id_2</code>의 배우가 <code class="highlighter-rouge">film_id</code>의 영화에 출연했다는 의미이다. 본 문제에서는 <code class="highlighter-rouge">small.json</code>과 <code class="highlighter-rouge">large.json</code>의 두 데이터가 제공된다.</p>
+
+<p>한편, 배우 ID-배우 이름 데이터는 <code class="highlighter-rouge">{actor_name: actor_id}</code> 형태의 dictionary로 제공된다. 본 문제에서는 <code class="highlighter-rouge">names.json</code>이 제공된다.<br /><br /></p>
+
+<h3 id="1-acting-together">1. Acting Together</h3>
+<blockquote>
+  <p><code class="highlighter-rouge">did_x_and_y_act_together</code> 함수를 작성하라.</p>
+  <blockquote>
+    <p><strong>Input:</strong> 배우-영화 데이터, 두 배우의 ID.<br />
+<strong>Return:</strong> 두 배우가 같은 영화에 출연했으면 True, 아니면 False.</p>
+  </blockquote>
+</blockquote>
+
+<p>예를 들어, Kevin Bacon (<code class="highlighter-rouge">id=4724</code>)과 Steve Park (<code class="highlighter-rouge">id=4025</code>)은 같은 영화에 출연하지 않았으므로, <code class="highlighter-rouge">did_x_and_y_act_together(..., 4724, 4025)</code>는 <code class="highlighter-rouge">False</code>를 반환해야 한다.</p>
+
+<p>우선 다음과 같이 배우-영화 데이터로부터 <code class="highlighter-rouge">{film_id: {actor_id_1, actor_id_2, ...}}</code> 꼴의 dictionary를 반환하는 코드를 작성하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">data_into_film_dict</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="s2">"""
+        아이템 탐색이 list에서보다 dictionary에서 훨씬 빠르며,
+        같은 영화에 나온 배우들을 모두 묶기 위해,
+        배우-영화 데이터 ([[actor_id_1, actor_id_2, film_id]])를 dictionary로 변환하자.
+
+        Return:
+            * filmDict: Dictionary ({film_id: {actor_id_1, actor_id_2, ...}})
+                        Key: integer; Value: set
+    """</span>
+    <span class="n">filmDict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="no">IDs</span> <span class="k">in</span> <span class="ss">data:
+        </span><span class="k">if</span> <span class="no">IDs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="n">not</span> <span class="k">in</span> <span class="ss">filmDict:      </span><span class="c1"># 각 영화의 첫 번째</span>
+            <span class="n">filmDict</span><span class="p">[</span><span class="no">IDs</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="n">set</span><span class="p">(</span><span class="no">IDs</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span>     <span class="c1"># filmDict[film_id] = {actor_id_1, actor_id_2}</span>
+        <span class="ss">else:       </span><span class="c1"># set는 반복되는 원소를 허용하지 않는다</span>
+            <span class="n">filmDict</span><span class="p">[</span><span class="no">IDs</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="n">filmDict</span><span class="p">[</span><span class="no">IDs</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">|</span> <span class="n">set</span><span class="p">(</span><span class="no">IDs</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">filmDict</span></code></pre></figure>
+
+<p>그 후 다음 코드를 작성하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">did_x_and_y_act_together</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">actor_id_1</span><span class="p">,</span> <span class="n">actor_id_2</span><span class="p">):</span>
+    <span class="s2">"""
+        Input:
+            * data: 배우-영화 데이터 ([[actor_id_1, actor_id_2, film_id]])
+
+        Return:
+            * 두 배우가 같은 영화에 출연했으면 True
+            * 아니면 False
+    """</span>
+    <span class="n">filmDict</span> <span class="o">=</span> <span class="n">data_into_film_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">act_together</span> <span class="o">=</span> <span class="no">False</span>
+    <span class="k">for</span> <span class="n">actor_ids</span> <span class="k">in</span> <span class="n">filmDict</span><span class="p">.</span><span class="nf">values</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">actor_id_1</span> <span class="k">in</span> <span class="n">actor_ids</span> <span class="n">and</span> <span class="n">actor_id_2</span> <span class="k">in</span> <span class="ss">actor_ids:
+            </span><span class="n">act_together</span> <span class="o">=</span> <span class="no">True</span>
+    <span class="k">return</span> <span class="n">act_together</span></code></pre></figure>
+
+<p>다음과 같이 위 코드를 테스트하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">import</span> <span class="n">json</span>
+
+<span class="n">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'resources/names.json'</span><span class="p">)</span> <span class="n">as</span> <span class="ss">f:
+    </span><span class="n">namesDict</span> <span class="o">=</span> <span class="n">json</span><span class="p">.</span><span class="nf">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="n">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'resources/small.json'</span><span class="p">)</span> <span class="n">as</span> <span class="ss">f:
+    </span><span class="n">smalldb</span> <span class="o">=</span> <span class="n">json</span><span class="p">.</span><span class="nf">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="c1"># Steve Park과 Craig Bierko가 같이 연기했는가?</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Steve Park and Craig Bierko acted together:'</span><span class="p">,</span>
+      <span class="n">did_x_and_y_act_together</span><span class="p">(</span><span class="n">smalldb</span><span class="p">,</span> <span class="n">namesDict</span><span class="p">[</span><span class="s1">'Steve Park'</span><span class="p">],</span> <span class="n">namesDict</span><span class="p">[</span><span class="s1">'Craig Bierko'</span><span class="p">]))</span>
+
+<span class="c1"># Rex Linn과 Samuel L. Jackson이 같이 연기했는가?</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Rex Linn and Samuel L. Jackson acted together:'</span><span class="p">,</span>
+      <span class="n">did_x_and_y_act_together</span><span class="p">(</span><span class="n">smalldb</span><span class="p">,</span> <span class="n">namesDict</span><span class="p">[</span><span class="s1">'Rex Linn'</span><span class="p">],</span> <span class="n">namesDict</span><span class="p">[</span><span class="s1">'Samuel L. Jackson'</span><span class="p">]))</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="o">&gt;&gt;</span> <span class="no">Steve</span> <span class="no">Park</span> <span class="n">and</span> <span class="no">Craig</span> <span class="no">Bierko</span> <span class="n">acted</span> <span class="ss">together: </span><span class="no">False</span>
+<span class="o">&gt;&gt;</span> <span class="no">Rex</span> <span class="no">Linn</span> <span class="n">and</span> <span class="no">Samuel</span> <span class="no">L</span><span class="o">.</span> <span class="no">Jackson</span> <span class="n">acted</span> <span class="ss">together: </span><span class="no">True</span></code></pre></figure>
+<p><br /></p>
+
+<h3 id="2-bacon-number">2. Bacon Number</h3>
+<blockquote>
+  <p><code class="highlighter-rouge">get_actors_with_bacon_number</code> 함수를 작성하라.</p>
+  <blockquote>
+    <p><strong>Input:</strong> 배우-영화 데이터, Bacon number.<br />
+<strong>Return:</strong> 입력한 Bacon number를 갖는 모든 배우들의 ID를 포함하는 set.</p>
+  </blockquote>
+</blockquote>
+
+<p>Bacon number가 1인 배우들을 다음과 같이 나타낼 수 있다.</p>
+<center><img src="/assets/img/bacon-number-1.png" width="400" height="400" /></center>
+<p>그렇다면 Bacon number가 2인 배우들은 다음과 같이 나타내어진다.</p>
+<center><img src="/assets/img/bacon-number-2.png" width="400" height="400" /></center>
+<p>Bacon number가 <code class="highlighter-rouge">i</code>인 배우들로부터 Bacon number가 <code class="highlighter-rouge">i+1</code>인 배우들을 구하도록 재귀 함수를 작성하여야 한다.</p>
+
+<p>우선 다음과 같이 배우-영화 데이터로부터 <code class="highlighter-rouge">{actor_id: {film_id_1, film_id_2, ...}}</code>꼴의 dictionary를 반환하는 코드를 작성하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">data_into_actor_dict</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="s2">"""
+        한 배우의 영화를 모두 묶기 위해,
+        영화-배우 데이터 ([[actor_id_1, actor_id_2, film_id]])를 dictionary로 변환하자.
+
+        Return:
+            * actorDict: Dictionary ({actor_id: {film_id_1, film_id_2, ...}})
+                         Key: integer; Value: set
+    """</span>
+    <span class="n">actorDict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="no">IDs</span> <span class="k">in</span> <span class="ss">data:
+        </span><span class="k">for</span> <span class="n">actor_id</span> <span class="k">in</span> <span class="no">IDs</span><span class="p">[:</span><span class="mi">2</span><span class="p">]:</span>    <span class="c1"># IDs[0]와 IDs[1] (actor_ids)</span>
+            <span class="k">if</span> <span class="n">actor_id</span> <span class="n">not</span> <span class="k">in</span> <span class="ss">actorDict:
+                </span><span class="n">actorDict</span><span class="p">[</span><span class="n">actor_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">set</span><span class="p">([</span><span class="no">IDs</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>     <span class="c1"># actorDict[actor_id] = {film_id}</span>
+            <span class="ss">else:       </span><span class="c1"># a set doesn't allow duplicated elements</span>
+                <span class="n">actorDict</span><span class="p">[</span><span class="n">actor_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">actorDict</span><span class="p">[</span><span class="n">actor_id</span><span class="p">]</span> <span class="o">|</span> <span class="n">set</span><span class="p">([</span><span class="no">IDs</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+    <span class="k">return</span> <span class="n">actorDict</span></code></pre></figure>
+
+<p>또한 영화-배우 데이터로부터 <code class="highlighter-rouge">{actor_id: {coactor_id_1, coactor_id_2, ...}}</code> 꼴의 dictionary를 반환하는 코드를 작성하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">data_into_coactor_dict</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="s2">"""
+        한 배우의 동료 배우 (같은 영화에 출연한 배우)를 모두 묶기 위해,
+        영화-배우 데이터 ([[actor_id_1, actor_id_2, film_id]])를 dictionary로 변환하자.
+
+        Return:
+            * coactorDict: Dictionary ({actor_id: {coactor_id_1, coactor_id_2, ...}})
+                           Key: integer; Value: set
+    """</span>
+    <span class="n">filmDict</span> <span class="o">=</span> <span class="n">data_into_film_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">actorDict</span> <span class="o">=</span> <span class="n">data_into_actor_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">coactorDict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">actor_id</span> <span class="k">in</span> <span class="ss">actorDict:
+        </span><span class="k">for</span> <span class="n">film_id</span> <span class="k">in</span> <span class="n">actorDict</span><span class="p">[</span><span class="n">actor_id</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">actor_id</span> <span class="n">not</span> <span class="k">in</span> <span class="ss">coactorDict:   </span><span class="c1"># 각 배우의 첫 번째</span>
+                <span class="n">coactorDict</span><span class="p">[</span><span class="n">actor_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">filmDict</span><span class="p">[</span><span class="n">film_id</span><span class="p">]</span>
+            <span class="ss">else:
+                </span><span class="n">coactorDict</span><span class="p">[</span><span class="n">actor_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">coactorDict</span><span class="p">[</span><span class="n">actor_id</span><span class="p">]</span> <span class="o">|</span> <span class="n">filmDict</span><span class="p">[</span><span class="n">film_id</span><span class="p">]</span>
+        <span class="c1"># actor_id's co-actors shouldn't include actor_id itself</span>
+        <span class="n">coactorDict</span><span class="p">[</span><span class="n">actor_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">coactorDict</span><span class="p">[</span><span class="n">actor_id</span><span class="p">]</span> <span class="o">-</span> <span class="n">set</span><span class="p">([</span><span class="n">actor_id</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">coactorDict</span></code></pre></figure>
+
+<p>그 후 다음 코드를 작성하였다. Kevin Bacon의 id는 <code class="highlighter-rouge">4724</code>이다. <code class="highlighter-rouge">get_ids_with_actor_number</code> 작성 시 Bacon이 아닌 다른 배우로부터도 actor number를 구할 수 있도록 중심 배우의 id를 <code class="highlighter-rouge">center_id</code>로 두었다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">get_ids_with_actor_number</span><span class="p">(</span><span class="n">coactorDict</span><span class="p">,</span> <span class="n">center_id</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="s2">"""
+        Input:
+            * n: actor number (center_id가 4724일 때 Bacon number)
+
+        Return:
+            * (Actor number n의 배우 ID set, actor number 0 ~ n의 배우 ID set) 꼴의 tuple
+    """</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="p">{</span><span class="n">center_id</span><span class="p">}</span>
+        <span class="n">ids_so_far</span> <span class="o">=</span> <span class="p">{</span><span class="n">center_id</span><span class="p">}</span>
+    <span class="ss">else:
+        </span><span class="c1"># junc_ids (junction ids): actor IDs with Bacon number (n-1)</span>
+        <span class="n">junc_ids</span><span class="p">,</span> <span class="n">junc_ids_so_far</span> <span class="o">=</span> <span class="n">get_ids_with_actor_number</span><span class="p">(</span><span class="n">coactorDict</span><span class="p">,</span> <span class="n">center_id</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">idSet</span> <span class="o">=</span> <span class="n">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">junc_id</span> <span class="k">in</span> <span class="ss">junc_ids:
+            </span><span class="n">idSet</span> <span class="o">=</span> <span class="n">idSet</span> <span class="o">|</span> <span class="n">coactorDict</span><span class="p">[</span><span class="n">junc_id</span><span class="p">]</span>    <span class="c1"># junc_id의 coactor IDs를 append</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="n">idSet</span> <span class="o">-</span> <span class="n">junc_ids_so_far</span>
+        <span class="n">ids_so_far</span> <span class="o">=</span> <span class="n">idSet</span> <span class="o">|</span> <span class="n">junc_ids_so_far</span>
+    <span class="k">return</span> <span class="n">ids</span><span class="p">,</span> <span class="n">ids_so_far</span>
+
+<span class="k">def</span> <span class="nf">get_actors_with_bacon_number</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="s2">"""
+        Input:
+            * n: Bacon number
+
+        Return:
+            * Bacon number n을 갖는 배우들의 ID set
+    """</span>
+    <span class="n">coactorDict</span> <span class="o">=</span> <span class="n">data_into_coactor_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">get_ids_with_actor_number</span><span class="p">(</span><span class="n">coactorDict</span><span class="p">,</span> <span class="mi">4724</span><span class="p">,</span> <span class="n">n</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>   <span class="c1"># Kevin Bacon의 ID는 4724</span></code></pre></figure>
+
+<p>이에 추가로, 배우 ID를 이름으로 바꾸는 함수도 작성하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">import</span> <span class="n">json</span>
+
+<span class="n">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'resources/names.json'</span><span class="p">)</span> <span class="n">as</span> <span class="ss">f:
+    </span><span class="n">namesDict</span> <span class="o">=</span> <span class="n">json</span><span class="p">.</span><span class="nf">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">ids_into_names</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
+    <span class="n">nameList</span> <span class="o">=</span> <span class="n">list</span><span class="p">(</span><span class="n">namesDict</span><span class="p">.</span><span class="nf">keys</span><span class="p">())</span>
+    <span class="n">idList</span> <span class="o">=</span> <span class="n">list</span><span class="p">(</span><span class="n">namesDict</span><span class="p">.</span><span class="nf">values</span><span class="p">())</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="n">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="nb">id</span> <span class="k">in</span> <span class="ss">ids:
+        </span><span class="n">names</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">nameList</span><span class="p">[</span><span class="n">idList</span><span class="p">.</span><span class="nf">index</span><span class="p">(</span><span class="nb">id</span><span class="p">)])</span>
+    <span class="k">if</span> <span class="n">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="no">None</span>
+    <span class="ss">else:
+        </span><span class="k">return</span> <span class="n">names</span></code></pre></figure>
+
+<p>다음과 같이 위 코드를 테스트하였다. <code class="highlighter-rouge">Lenovo Ideapad S340 (Ryzen 5)</code>으로 실행한 결과 70초 ~ 75초가 소요된다.</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="code"><pre>import time
+import json
+
+with open('resources/large.json') as f:
+    largedb = json.load(f)
+
+# large.json에서, 누가 Bacon number 6를 갖는가?
+print('Start processing BN 6 in large.json:', time.process_time(), 's')
+print('Actors of BN 6 in large.json:', ids_into_names(get_actors_with_bacon_number(largedb, 6)))
+print('End processing BN 6 in large.json:', time.process_time(), 's')   # 70 ~ 75 s
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="o">&gt;&gt;</span> <span class="no">Start</span> <span class="n">processing</span> <span class="no">BN</span> <span class="mi">6</span> <span class="k">in</span> <span class="n">large</span><span class="p">.</span><span class="nf">json</span><span class="p">:</span> <span class="mf">1.1875</span> <span class="n">s</span>
+<span class="o">&gt;&gt;</span> <span class="no">Actors</span> <span class="n">of</span> <span class="no">BN</span> <span class="mi">6</span> <span class="k">in</span> <span class="n">large</span><span class="p">.</span><span class="nf">json</span><span class="p">:</span> <span class="p">{</span><span class="s1">'Iva Ilakovac'</span><span class="p">,</span> <span class="s1">'Sven Batinic'</span><span class="p">,</span> <span class="s1">'Vjeran Tin Turk'</span><span class="p">,</span> <span class="s1">'Anton Radacic'</span><span class="p">}</span>
+<span class="o">&gt;&gt;</span> <span class="no">End</span> <span class="n">processing</span> <span class="no">BN</span> <span class="mi">6</span> <span class="k">in</span> <span class="n">large</span><span class="p">.</span><span class="nf">json</span><span class="p">:</span> <span class="mf">73.203125</span> <span class="n">s</span></code></pre></figure>
+<p><br /></p>
+
+<h3 id="3-paths">3. Paths</h3>
+<blockquote>
+  <p><code class="highlighter-rouge">get_bacon_path</code> 함수를 작성하라.</p>
+  <blockquote>
+    <p><strong>Input:</strong> 배우-영화 데이터, 배우 ID.<br />
+<strong>Return:</strong> Kevin Bacon으로부터 입력한 배우로 이어지는 배우 ID들의 list, 즉 ‘Bacon path’.<br />
+            Path가 존재하지 않으면 None.</p>
+  </blockquote>
+</blockquote>
+
+<p>예를 들어, Julia Roberts의 Bacon path는 <code class="highlighter-rouge">[4724, 3087, 1204]</code>이다. 이는 Kevin Bacon (<code class="highlighter-rouge">id=4724</code>)은 Julia Roberts (<code class="highlighter-rouge">id=1204</code>)와 같은 영화에 출연한 Robert Duvall (<code class="highlighter-rouge">id=3087</code>)과 같은 영화에 출연했다는 의미이다. Bacon path는 고유하지 않으며, 도착 배우가 같은 어떤 최단 경로라도 답이 될 수 있다.</p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">get_path</code> 함수를 작성하라.</p>
+  <blockquote>
+    <p><strong>Input:</strong> 배우-영화 데이터, 두 배우의 ID.<br />
+<strong>Return:</strong> 입력한 한 배우로부터 입력한 다른 배우로 이어지는 배우 ID들의 list. Path가 존재하지 않으면 None.</p>
+  </blockquote>
+</blockquote>
+
+<p>Kevin Bacon은 사실 특별한 사람이 아니며, 다른 어떤 배우를 중심으로도 path를 찾을 수 있다. 역시 출발 배우와 도착 배우가 같은 어떤 최단 경로라도 답이 될 수 있다.</p>
+
+<p>[4724, 6908]
+[4724, 1532, 2561]
+[4724, 2876, 16927, 10500]</p>
+
+<p>Start get_bacon_path (BN 5) in large.json: 82.21875 s
+The path from Kevin Bacon - Melana Alterio in large.json: [4724, 6159, 3872, 16441, 34020, 96428]
+End get_bacon_path (BN 5) in large.json: 258.328125 s</p>
+
+<p>Start get_path (AN 6) in large.json: 258.328125 s
+The path from Al Hoxie - Betsy Palmer in large.json: [1408949, 14664, 8841, 11147, 32, 4724, 37469]
+End get_path (AN 6) in large.json: 300.0 s</p>
+
+:ET
