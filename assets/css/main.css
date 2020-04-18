@@ -786,7 +786,7 @@ body {
   /* 한글 단어 단위로 자르기 */
   word-break: keep-all;
   /* 자간 자동 맞춤 */
-  text-align: justify;
+  /* text-align: justify; */
   color: #3e3e40;
   margin: 0;
   background-color: #fff;
@@ -1652,6 +1652,9 @@ pre code {
 /* = = = = = = = = = = Media = = = = = = = = = = */
 /* Small Devices, Tablets */
 @media only screen and (max-width: 768px) {
+  .page-content {
+    margin-top: 20px;
+  }
   .main-header .logo a {
     font-size: 24px;
   }
@@ -1684,7 +1687,8 @@ pre code {
     max-width: 95%;
   }
   .page-content {
-    margin-top: -50px;
+    /* margin-top: -50px; */
+    margin-top: 20px
     padding: 15px;
   }
   .header-page {
