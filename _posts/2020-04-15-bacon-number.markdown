@@ -18,13 +18,13 @@ Python으로 [MIT OCW 6.009] Fundamentals of Programming 강의의 두 번째 �
 
 ### 1. Acting Together
 > `did_x_and_y_act_together` 함수를 작성하라.
->> **Input:** 배우-영화 데이터 (`data`), 두 배우의 ID (`actor_id_1`, `actor_id_2`).<br/>
->> **Return:** 두 배우가 같은 영화에 출연했으면 `True`, 아니면 `False`.
+>> <span style="color:#2d8659">**Input:**</span> 배우-영화 데이터 (`data`), 두 배우의 ID (`actor_id_1`, `actor_id_2`).<br/>
+>> <span style="color:#2d8659">**Return:**</span> 두 배우가 같은 영화에 출연했으면 `True`, 아니면 `False`.
 
 예를 들어, Kevin Bacon (`id=4724`)과 Steve Park (`id=4025`)은 같은 영화에 출연하지 않았으므로, `did_x_and_y_act_together(..., 4724, 4025)`는 `False`를 반환해야 한다.
 
 우선 다음과 같이 배우-영화 데이터로부터 `{film_id: {actor_id_1, actor_id_2, ...}}` 꼴의 dictionary를 반환하는 코드를 작성하였다.
-{% highlight ruby %}
+{% highlight ruby linenos=table %}
 def data_into_film_dict(data):
     """
         아이템 탐색이 list에서보다 dictionary에서 훨씬 빠르며,
@@ -45,7 +45,7 @@ def data_into_film_dict(data):
 {% endhighlight %}
 
 그 후 다음 코드를 작성하였다.
-{% highlight ruby %}
+{% highlight ruby linenos=table %}
 def did_x_and_y_act_together(data, actor_id_1, actor_id_2):
     """
         Input:
@@ -64,7 +64,7 @@ def did_x_and_y_act_together(data, actor_id_1, actor_id_2):
 {% endhighlight %}
 
 다음과 같이 위 코드를 테스트하였다.
-{% highlight ruby %}
+{% highlight ruby linenos=table %}
 import json
 
 with open('resources/names.json') as f:
@@ -83,14 +83,14 @@ print('Rex Linn and Samuel L. Jackson acted together:',
 {% endhighlight %}
 
 {% highlight language %}
->> Steve Park and Craig Bierko acted together: False
->> Rex Linn and Samuel L. Jackson acted together: True
+  >>   Steve Park and Craig Bierko acted together: False
+  >>   Rex Linn and Samuel L. Jackson acted together: True
 {% endhighlight %}<br/>
 
 ### 2. Bacon Number
 > `get_actors_with_bacon_number` 함수를 작성하라.
->> **Input:** 배우-영화 데이터 (`data`), Bacon number (`n`).<br/>
->> **Return:** 입력한 Bacon number를 갖는 모든 배우들의 ID를 포함하는 set.
+>> <span style="color:#2d8659">**Input:**</span> 배우-영화 데이터 (`data`), Bacon number (`n`).<br/>
+>> <span style="color:#2d8659">**Return:**</span> 입력한 Bacon number를 갖는 모든 배우들의 ID를 포함하는 set.
 
 Bacon number가 1인 배우들을 다음과 같이 나타낼 수 있다.
 <center><img src="{{site.baseurl}}/assets/img/20200415-bacon-number-1.png" width="400" height="400"></center>
@@ -99,7 +99,7 @@ Bacon number가 1인 배우들을 다음과 같이 나타낼 수 있다.
 Bacon number가 `i`인 배우들로부터 Bacon number가 `i+1`인 배우들을 구하도록 재귀 함수를 작성하여야 한다.
 
 우선 다음과 같이 배우-영화 데이터로부터 `{actor_id: {film_id_1, film_id_2, ...}}`꼴의 dictionary를 반환하는 코드를 작성하였다.
-{% highlight ruby %}
+{% highlight ruby linenos=table %}
 def data_into_actor_dict(data):
     """
         한 배우의 영화를 모두 묶기 위해,
@@ -120,7 +120,7 @@ def data_into_actor_dict(data):
 {% endhighlight %}
 
 또한 영화-배우 데이터로부터 `{actor_id: {coactor_id_1, coactor_id_2, ...}}` 꼴의 dictionary를 반환하는 코드를 작성하였다. 위에서 작성한 `data_into_film_dict`와 `data_into_actor_dict`를 사용하였다.
-{% highlight ruby %}
+{% highlight ruby linenos=table %}
 def data_into_coactor_dict(data):
     """
         한 배우의 동료 배우 (같은 영화에 출연한 배우)를 모두 묶기 위해,
@@ -145,7 +145,7 @@ def data_into_coactor_dict(data):
 {% endhighlight %}
 
 그 후 다음 코드를 작성하였다. Kevin Bacon의 id는 `4724`이다. `get_ids_with_actor_number` 작성 시 Bacon이 아닌 다른 배우로부터도 actor number를 구할 수 있도록 중심 배우의 id를 `center_id`로 두었다.
-{% highlight ruby %}
+{% highlight ruby linenos=table %}
 def get_ids_with_actor_number(coactorDict, center_id, n):
     """
         Input:
@@ -180,7 +180,7 @@ def get_actors_with_bacon_number(data, n):
 {% endhighlight %}
 
 이에 추가로, 배우 ID를 이름으로 바꾸는 함수도 작성하였다.
-{% highlight ruby %}
+{% highlight ruby linenos=table %}
 import json
 
 with open('resources/names.json') as f:
@@ -199,7 +199,7 @@ def ids_into_names(ids):
 {% endhighlight %}
 
 다음과 같이 위 코드를 테스트하였다. `Lenovo Ideapad S340 (Ryzen 5)`으로 실행한 결과 70초 ~ 75초가 소요된다.
-{% highlight ruby %}
+{% highlight ruby linenos=table %}
 import time
 import json
 
@@ -213,27 +213,27 @@ print('End processing BN 6 in large.json:', time.process_time(), 's')   # 70 ~ 7
 {% endhighlight %}
 
 {% highlight language %}
->> Start processing BN 6 in large.json: 1.1875 s
->> Actors of BN 6 in large.json: {'Iva Ilakovac', 'Sven Batinic', 'Vjeran Tin Turk', 'Anton Radacic'}
->> End processing BN 6 in large.json: 73.203125 s
+  >>   Start processing BN 6 in large.json: 1.1875 s
+  >>   Actors of BN 6 in large.json: {'Iva Ilakovac', 'Sven Batinic', 'Vjeran Tin Turk', 'Anton Radacic'}
+  >>   End processing BN 6 in large.json: 73.203125 s
 {% endhighlight %}<br/>
 
 ### 3. Paths
 > `get_bacon_path` 함수를 작성하라.
->> **Input:** 배우-영화 데이터 (`data`), 배우 ID (`actor_id`).<br/>
->> **Return:** Kevin Bacon으로부터 입력한 배우로 이어지는 배우 ID들의 list, 즉 'Bacon path'.<br/>
+>> <span style="color:#2d8659">**Input:**</span> 배우-영화 데이터 (`data`), 배우 ID (`actor_id`).<br/>
+>> <span style="color:#2d8659">**Return:**</span> Kevin Bacon으로부터 입력한 배우로 이어지는 배우 ID들의 list, 즉 'Bacon path'.<br/>
 >> Path가 존재하지 않으면 `None`.
 
 예를 들어, Julia Roberts의 Bacon path는 `[4724, 3087, 1204]`이다. 이는 Kevin Bacon (`id=4724`)은 Julia Roberts (`id=1204`)와 같은 영화에 출연한 Robert Duvall (`id=3087`)과 같은 영화에 출연했다는 의미이다. Bacon path는 고유하지 않으며, 도착 배우가 같은 어떤 최단 경로라도 답이 될 수 있다.
 
 > `get_path` 함수를 작성하라.
->> **Input:** 배우-영화 데이터 (`data`), 두 배우의 ID (`actor_id_1`, `actor_id_2`).<br/>
->> **Return:** 입력한 한 배우로부터 입력한 다른 배우로 이어지는 배우 ID들의 list. Path가 존재하지 않으면 `None`.
+>> <span style="color:#2d8659">**Input:**</span> 배우-영화 데이터 (`data`), 두 배우의 ID (`actor_id_1`, `actor_id_2`).<br/>
+>> <span style="color:#2d8659">**Return:**</span> 입력한 한 배우로부터 입력한 다른 배우로 이어지는 배우 ID들의 list. Path가 존재하지 않으면 `None`.
 
 Kevin Bacon은 사실 특별한 사람이 아니며, 다른 어떤 배우를 중심으로도 path를 찾을 수 있다. 역시 출발 배우와 도착 배우가 같은 어떤 최단 경로라도 답이 될 수 있다.
 
 다음과 같이 코드를 작성하였다. 위에서 작성한 `data_into_coactor_dict`와 `get_ids_with_actor_number`를 사용하였다.
-{% highlight ruby %}
+{% highlight ruby linenos=table %}
 def get_bacon_path(data, actor_id):
     return get_path(data, 4724, actor_id)   # Kevin Bacon의 ID는 4724
 
@@ -274,7 +274,7 @@ def get_path(data, center_id, actor_id):
 {% endhighlight %}
 
 다음과 같이 `get_bacon_path`를 테스트하였다. `large.json`에서 Kevin Bacon - Malena Alterio path를 구하는 코드는 `Lenovo Ideapad S340 (Ryzen 5)`으로 실행한 결과 135초 ~ 140초가 소요된다.
-{% highlight ruby %}
+{% highlight ruby linenos=table %}
 import jason
 import time
 
@@ -296,17 +296,17 @@ print('End get_bacon_path (BN 5) in large.json:', time.process_time(), 's')     
 {% endhighlight %}
 
 {% highlight language %}
->> [4724, 6908]
->> [4724, 1532, 2561]
->> [4724, 2876, 16927, 10500]
->>
->> Start get_bacon_path (BN 5) in large.json: 73.21875 s
->> The path from Kevin Bacon - Melana Alterio in large.json: [4724, 6159, 3872, 16441, 34020, 96428]
->> End get_bacon_path (BN 5) in large.json: 210.328125 s
+  >>   [4724, 6908]
+  >>   [4724, 1532, 2561]
+  >>   [4724, 2876, 16927, 10500]
+  >>
+  >>   Start get_bacon_path (BN 5) in large.json: 73.21875 s
+  >>   The path from Kevin Bacon - Melana Alterio in large.json: [4724, 6159, 3872, 16441, 34020, 96428]
+  >>   End get_bacon_path (BN 5) in large.json: 210.328125 s
 {% endhighlight %}
 
 또, 다음과 같이 `get_path`를 테스트하였다. `Lenovo Ideapad S340 (Ryzen 5)`으로 실행한 결과 35초 ~ 40초가 소요된다.
-{% highlight ruby %}
+{% highlight ruby linenos=table %}
 import jason
 import time
 
@@ -321,9 +321,9 @@ print('End get_path (AN 6) in large.json:', time.process_time(), 's')       # 35
 {% endhighlight %}
 
 {% highlight language %}
->> Start get_path (AN 6) in large.json: 212.328125 s
->> The path from Al Hoxie - Betsy Palmer in large.json: [1408949, 14664, 8841, 11147, 32, 4724, 37469]
->> End get_path (AN 6) in large.json: 249.0 s
+  >>   Start get_path (AN 6) in large.json: 212.328125 s
+  >>   The path from Al Hoxie - Betsy Palmer in large.json: [1408949, 14664, 8841, 11147, 32, 4724, 37469]
+  >>   End get_path (AN 6) in large.json: 249.0 s
 {% endhighlight %}<br/>
 
 ### 4. 끝맺음
