@@ -1212,7 +1212,7 @@ pre code {
 }
 
 .page-content {
-  margin-top: 20px;
+  margin-top: 50px;
   margin-bottom: 100px;
   background-color: #fff;
   padding: 20px;
@@ -1676,9 +1676,6 @@ pre code {
     left: 2.5%;
     bottom: 10%;
     color: #fff;
-  }
-  .page-content {
-    margin-top: 20px;
   }
 }
 
