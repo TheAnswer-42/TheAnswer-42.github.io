@@ -9,9 +9,9 @@ baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://theanswer-42.github.io/" # the base hostname & protocol for your site, e.g. http://example.com
 
 # Author settings
-author: Curie # add your name
-author-pic: 42.png
-about-author: Searching for 42...
+author: 42thehuman # add your name
+author-pic: golden-record.jpg
+about-author: A voyager, a seeker of 42, a learner, a runner, a reader and a writer<br>orbiting a small sun of the western spiral arm of the Galaxy at a distance of 92 million miles.
 
 # Contact links
 email: animecult@naver.com # Add your Email address

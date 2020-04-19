@@ -8,326 +8,290 @@ img: 20200416-circuit.png # Add image post (optional)
 tags: [Python, MIT OCW, 6.009]
 author: # Add name author (optional)
 ---
-Python으로 [MIT OCW 6.009] Fundamentals of Programming 강의의 세 번째 문제, [Lab 3: Circuit Solver][circuit-solver]를 풀어보자 (<a href="{{site.baseurl}}/assets/files/6.009-lab3.zip" download>문제 템플릿</a>).
+Python으로 [MIT OCW 6.009] Fundamentals of Programming 강의의 세 번째 문제, [Lab 3: Circuit Solver][circuit-solver]를 풀어보자 (<a href="{{site.baseurl}}/assets/files/6.009-lab3.zip" download>문제 템플릿</a>).<br><br>
 
+### 1. A System of Linear Equations
+각 선형 식은 변수와 계수를 연결하는 `dictionary`로 표현된다. 상수항은 key `1`로 표현된다. 예를 들어, $$2x + 3.5y + 4z + 5 = 0$$은 `{'x': 2, 'y': 3.5, 'z': 4, 1: 5}`로 표현된다. 연립방정식은 식 dictionaries의 `list`로 표현된다.
 
-*Six Degrees of Separation* 이란 지구상의 한 사람과 다른 한 사람 간에는 최대 6명의 사람이 있다는 이론이다. 본 이론의 할리우드 버전이 바로 *Bacon number* 다. 배우 Kevin Bacon은 0의 Bacon number를 갖는다. Kevin Bacon과 같은 영화에 출연한 배우는 1의 Bacon number를 갖는다. Kevin Bacon과 같은 영화에 출연한 배우와 같은 영화에 출연한 배우는 2의 Bacon number를 갖는다. 즉, 어떤 배우의 Bacon number는 *그 배우를 Kevin Bacon과 떨어뜨려 놓는 최소 영화 수* 로 정의된다.
+본 문제에서는 연립방정식을 풀기 위해 substitution method를 쓰는 것을 추천한다. 모든 연립방정식의 식은 서로 독립이라고 가정한다. 다음과 같은 연립방정식이 있다고 하자.<br>
+<center>$$ \begin{matrix}
+x + 2y + 4z - 1 = 0 \\
+2x + y = 0 \\
+2x + 3y + 4z + 5 = 0
+\end{matrix} $$</center>
+**Step 1.**<br>
+대입할 식, *substitution equation* 을 고른다. 어떤 식이어도 되지만, 속도를 위해서 가장 변수가 적은 식을 고른다. 이 경우에는 $$2x + y = 0$$을 고르게 된다.
 
-배우-영화 데이터는 list로 제공된다. 이 list는 `[actor_id_1, actor_id_2, film_id]` 형태의 list를 원소로 가지며, 이는 `actor_id_1`의 배우와 `actor_id_2`의 배우가 `film_id`의 영화에 출연했다는 의미이다. 본 문제에서는 `small.json`과 `large.json`의 두 데이터가 제공된다.
+**Step 2.**<br>
+이 식의 변수 중 *substituted variable* 을 고른다. 어떤 변수여도 되지만, 정확도를 위해서 계수의 절댓값이 가장 큰 변수를 고른다. 이 경우에는 $$2$$를 계수로 가지는 $$x$$를 고르게 된다.
 
-한편, 배우 ID-배우 이름 데이터는 `{actor_name: actor_id}` 형태의 dictionary로 제공된다. 본 문제에서는 `names.json`이 제공된다.<br/><br/>
+**Step 3.**<br>
+*Substitution equation* 을 *substituted variable* 에 대해 정리한다. 이 경우에는 $$x = -0.5y$$가 된다.
 
-### 1. Acting Together
-> `did_x_and_y_act_together` 함수를 작성하라.
->> <span style="color:#2d8659">**Input:**</span> 배우-영화 데이터 (`data`), 두 배우의 ID (`actor_id_1`, `actor_id_2`).<br/>
->> <span style="color:#2d8659">**Return:**</span> 두 배우가 같은 영화에 출연했으면 `True`, 아니면 `False`.
+**Step 4.**<br>
+*Substituted variable* 에 대한 식을 다른 식들에 대입한다. 즉, *substituted variable* 을 소거한다. 이 경우에는 다음과 같이 소거된다.
+<center>$$ \begin{matrix}
+(-0.5y) + 2y + 4z - 1 = 0 \\
+2(-0.5y) + 3y + 4z + 5 = 0
+\end{matrix} $$</center>
+즉,
+<center>$$ \begin{matrix}
+1.5y + 4z - 1 = 0 \\
+2y + 4z + 5 = 0
+\end{matrix} $$</center>
+가 된다.
 
-예를 들어, Kevin Bacon (`id=4724`)과 Steve Park (`id=4025`)은 같은 영화에 출연하지 않았으므로, `did_x_and_y_act_together(..., 4724, 4025)`는 `False`를 반환해야 한다.
+**Step 5.**<br>
+새로운 연립방정식은 변수가 하나 소거되었으며 식이 하나 적다. 따라서 재귀적으로 연립방정식의 해를 구할 수 있다. 이 경우에는 재귀 연산 끝에 다음과 같은 해를 얻는다.
+<center>$$ \begin{matrix}
+y = -12 \\
+z = 4.75
+\end{matrix} $$</center>
 
-우선 다음과 같이 배우-영화 데이터로부터 `{film_id: {actor_id_1, actor_id_2, ...}}` 꼴의 dictionary를 반환하는 코드를 작성하였다.
+**Step 6.**<br>
+마지막으로, *substitution equation* 을 이용해서 *substituted variable* 의 값을 계산한다. 즉, 위의 해를 *substitution equation* 에 대입한다. 이 경우에는 다음과 같은 해를 얻는다.
+<center>$$x = 6$$</center>
+본 연립방정식의 해는 `{'x': 6, 'y': -12, 'z': 4.75}`로 표현된다.<br><br>
+
+> `substituteEquation` 함수를 작성하라.
+>> <span style="color:#2d8659">**Input:**</span>
+* `equation`: 정리할 식.
+* `substitutedVariable`: 대입할 변수.
+* `substitutionEquation`: 대입할 식.
+
+>> <span style="color:#2d8659">**Return:**</span>
+* 상술한 `dictionary` 형태의, substituted variable의 소거가 완료된 후의 식.
+
+`substituteEquation`은 위의 **step 1** ~ **step 4** 과정을 수행하는 함수이다.
+
+다음과 같은 코드를 작성하였다. 향후 재귀 호출 시 전체 연립방정식을 계속 복사하는 것은 메모리 에러를 초래할 수 있으므로, 본 함수가 소거가 완료된 식을 반환할 뿐 아니라 `equation` 자체를 수정하게끔 하였다.
 {% highlight ruby linenos=table %}
-def data_into_film_dict(data):
-    """
-        아이템 탐색이 list에서보다 dictionary에서 훨씬 빠르며,
-        같은 영화에 나온 배우들을 모두 묶기 위해,
-        배우-영화 데이터 ([[actor_id_1, actor_id_2, film_id]])를 dictionary로 변환하자.
-
-        Return:
-            * filmDict: Dictionary ({film_id: {actor_id_1, actor_id_2, ...}})
-                        Key: integer; Value: set
-    """
-    filmDict = {}
-    for IDs in data:
-        if IDs[2] not in filmDict:      # 각 영화의 첫 번째
-            filmDict[IDs[2]] = set(IDs[:2])     # filmDict[film_id] = {actor_id_1, actor_id_2}
-        else:       # set는 반복되는 원소를 허용하지 않는다
-            filmDict[IDs[2]] = filmDict[IDs[2]] | set(IDs[:2])
-    return filmDict
-{% endhighlight %}
-
-그 후 다음 코드를 작성하였다.
-{% highlight ruby linenos=table %}
-def did_x_and_y_act_together(data, actor_id_1, actor_id_2):
+def substituteEquation(equation, substitutedVariable, substitutionEquation):
     """
         Input:
-            * data: 배우-영화 데이터 ([[actor_id_1, actor_id_2, film_id]])
+            * equation: 변수 또는 1 (상수항)을 계수와 연결하는 dictionary.
+                        e.g., {1: 2, 'x': 2, 'y': 3}은 2 + 2x + 3y = 0 의미.
+            * substitutedVariable: equation에서 소거될 변수.
+                                   정확도를 위해, substitutionEquation에서
+                                   계수의 절댓값이 가장 큰 변수이다.
+            * substitutionEquation: 소거에 사용될 식. 속도를 위해, 가장 변수가 적은 식이다.
 
         Return:
-            * 두 배우가 같은 영화에 출연했으면 True
-            * 아니면 False
+            * equation: 정리된 equation.
+                        이 함수는 정리된 equation을 반환할 뿐 아니라, equation 자체를 수정한다.
     """
-    filmDict = data_into_film_dict(data)
-    act_together = False
-    for actor_ids in filmDict.values():
-        if actor_id_1 in actor_ids and actor_id_2 in actor_ids:
-            act_together = True
-    return act_together
+    if substitutedVariable in equation:    # substitutedVariable이 equation에 없다면, equation 변화 X
+        for var in substitutionEquation:
+            coefficient = equation[substitutedVariable] * substitutionEquation[var]
+            if var in equation:
+                equation[var] += coefficient
+            else:
+                equation[var] = coefficient
+        del(equation[substitutedVariable])      # substitutedVariable은 소거된다
+    return equation
+{% endhighlight %}<br>
+
+> `solveLinear` 함수를 작성하라.
+>> <span style="color:#2d8659">**Input:**</span>
+* `variables`: 연립방정식의 모든 변수의 `set`. 각 변수는 `string` 또는 `tuple`이다.
+* `equations`: 상술한 `dictionary` 형태의 식을 원소로 갖는 `list`. 이 list의 길이는 `variables`의 길이와 같으며, 식은 서로 독립적이다.
+
+>> <span style="color:#2d8659">**Return:**</span>
+* 각 변수를 그 값과 연결하는 `dictionary`. 즉, 연립방정식의 해.
+
+`solveLinear`는 위의 **step 1** ~ **step 6** 과정을 수행하는 함수이다. `1e-5` 내의 계산 오차는 허용된다.
+
+다음과 같은 코드를 작성하였다. 위에서 작성한 `substituteEquation`을 사용하였다.
+{% highlight ruby linenos=table %}
+def solveLinear(variables, equations):
+    """
+        Input:
+            * variables: 변수를 나타내는 strings 또는 tuples의 set.
+                         e.g., {'x', 'y', 'z'}
+            * equations: 선형 식들의 list. 각 식은 dictionary로 표현되며, 서로 독립적이다.
+
+        Return:
+            * result: 각 변수와 그 값을 연결하는 dictionary (solution).
+                      하나의 해가 있다고 가정한다 (len(variables) = len(equations)).
+                      1e-5 미만의 오차는 허용된다.
+    """
+
+    def rearrange(variable, equation):
+    """ equation을 variable에 대해 정리한다.
+        e.g., variable이 'x', equation이 {'x': 2, 'y': 1}일 때,
+              equation을 {'y': -0.5}로 만든다 (x = -0.5*y). """
+        variable_coefficient = equation[variable]
+        del (equation[variable])    # variable은 소거된다
+        for left_var in equation:
+            # 나머지 변수들의 계수를 수정한다
+            equation[left_var] = -equation[left_var] / variable_coefficient
+
+    if len(equations) == 1:  # 풀이 완료 (남은 변수의 수가 1)
+        variable = list(variables)[0]
+        equation = equations[0]
+        rearrange(variable, equation)
+        solution = {variable: list(equation.values())[0]}   # e.g., x = 2이면 {'x': 2}
+    else:
+        # substitutionEquation: 변수가 가장 적은 식
+        num_var = []  # num_var[i]: i-th 식의 변수 갯수 (equations[i])
+        for equation in equations:
+            num_var.append(len(equation))
+        substitutionEquation = equations[num_var.index(min(num_var))]
+
+        # substitutedVariable: substitutionEquation에서 계수의 절댓값이 가장 큰 변수
+        forSubstitutedVariable = substitutionEquation.copy()
+        if 1 in forSubstitutedVariable:     # substitutedVariable 고를 때 상수항은 제외해야 한다
+            del(forSubstitutedVariable[1])
+        for var in forSubstitutedVariable:
+            forSubstitutedVariable[var] = abs(forSubstitutedVariable[var])      # 절댓값
+        vars = list(forSubstitutedVariable.keys())
+        values = list(forSubstitutedVariable.values())
+        substitutedVariable = vars[values.index(max(values))]
+        variables -= set([substitutedVariable])     # len(variables)이 1 감소
+
+        # substitutionEquation을 substitutedVariable에 대해 rearrange
+        rearrange(substitutedVariable, substitutionEquation)
+
+        equations.remove(substitutionEquation)  # len(equations)이 1 감소
+        for equation in equations:
+            # modify equation and substitutionEquation
+            substituteEquation(equation, substitutedVariable, substitutionEquation)
+
+        solution = solveLinear(variables, equations)  # 소거된 equations로 재귀 호출
+        substitutedVariable_sol = 0
+        for var in solution:
+            if var in substitutionEquation:
+                substitutedVariable_sol += substitutionEquation[var] * solution[var]
+        if 1 in substitutionEquation:
+            substitutedVariable_sol += substitutionEquation[1]      # 상수항
+        solution[substitutedVariable] = substitutedVariable_sol     # solution에 변수 하나 더 추가
+
+    return solution
 {% endhighlight %}
 
 다음과 같이 위 코드를 테스트하였다.
 {% highlight ruby linenos=table %}
-import json
-
-with open('resources/names.json') as f:
-    namesDict = json.load(f)
-
-with open('resources/small.json') as f:
-    smalldb = json.load(f)
-
-# Steve Park과 Craig Bierko가 같이 연기했는가?
-print('Steve Park and Craig Bierko acted together:',
-      did_x_and_y_act_together(smalldb, namesDict['Steve Park'], namesDict['Craig Bierko']))
-
-# Rex Linn과 Samuel L. Jackson이 같이 연기했는가?
-print('Rex Linn and Samuel L. Jackson acted together:',
-      did_x_and_y_act_together(smalldb, namesDict['Rex Linn'], namesDict['Samuel L. Jackson']))
+# Solve the system of equations given below.
+equations = [{'x': 1, 'y': -1, 'z': 2, 1: 2},
+             {'x': 1, 'y': 1, 'z': 3, 1: 1},
+             {'x': 11, 'z': -13, 1: -20}]
+print('Solution for x - y + 2z + 2 = 0, x + y + 3z + 1 = 0, 11x - 13z - 20 = 0:\n',
+       solveLinear({'x', 'y', 'z'}, equations), '\n')
 {% endhighlight %}
 
 {% highlight language %}
-  >>   Steve Park and Craig Bierko acted together: False
-  >>   Rex Linn and Samuel L. Jackson acted together: True
+  >>   Solution for x - y + 2z + 2 = 0, x + y + 3z + 1 = 0, 11x - 13z - 20 = 0:
+  >>   {'y': 0.9506172839506175, 'x': 0.7530864197530864, 'z': -0.9012345679012347}
 {% endhighlight %}<br/>
 
-### 2. Bacon Number
-> `get_actors_with_bacon_number` 함수를 작성하라.
->> <span style="color:#2d8659">**Input:**</span> 배우-영화 데이터 (`data`), Bacon number (`n`).<br/>
->> <span style="color:#2d8659">**Return:**</span> 입력한 Bacon number를 갖는 모든 배우들의 ID를 포함하는 set.
+### 2. Circuit Solver
+회로는 $$J$$개 연결점과 $$W$$개 전선으로 표현할 수 있다. 전류, 전압, 저항은 각각 $$I, V, R$$로 표현된다.
 
-Bacon number가 1인 배우들을 다음과 같이 나타낼 수 있다.
-<center><img src="{{site.baseurl}}/assets/img/20200415-bacon-number-1.png" width="400" height="400"></center>
-그렇다면 Bacon number가 2인 배우들은 다음과 같이 나타내어진다.
-<center><img src="{{site.baseurl}}/assets/img/20200415-bacon-number-2.png" width="400" height="400"></center>
-Bacon number가 `i`인 배우들로부터 Bacon number가 `i+1`인 배우들을 구하도록 재귀 함수를 작성하여야 한다.
+*Kirchhoff's Current Law* 는 전류가 보존된다는 법칙이다. 즉, 각 연결점에서 들어오는 전류의 양은 나가는 전류와 양과 같다. $$J$$개 연결점에 각각 이 법칙을 적용하여 $$J$$개 식을 도출할 수 있으며, 이 중 한 식이 독립적이지 않다. 결과적으로 $$J - 1$$개의 독립적인 식을 얻을 수 있다.
 
-우선 다음과 같이 배우-영화 데이터로부터 `{actor_id: {film_id_1, film_id_2, ...}}`꼴의 dictionary를 반환하는 코드를 작성하였다.
+*Ohm's Law* 는 전선에 걸리는 전압과 전선의 저항을 연결한다. 연결점 $$A$$와 연결점 $$B$$를 연결하는 전선 $$W$$에 대해 다음이 성립한다.
+<center>$$V_B - V_A = V_W - I_W R_W$$</center>
+
+Kirchhoff's Current Law 와 Ohm's Law를 결합하면 $$(J + W - 1)$$개 식을 얻으며, 이 식들은 서로 독립적임이 알려져 있다. 이에 더해, 한 연결점의 전압을 $$0$$으로 두는 *grounding* 을 통해 총 $$(J + W)$$개 식을 얻을 수 있다.
+
+예를 들어, 다음과 같은 회로를 보자.
+<center><img src="{{site.baseurl}}/assets/img/20200416-circuit-example.png" width="400" height="400"></center>
+
+변수는 7개로, 다음과 같다: $$V_A, V_B, V_C, I_{W0}, I_{W1}, I_{W2}, I_{W3}$$. Kirchhoff's Current Law와 Ohm's Law를 적용하면 6개 식을 얻으며, 연결점 A에 grounding을 하면 총 식은 7개가 된다. 식은 다음과 같다:
+
+<center>$$ \begin{matrix}
+I_{W0} = I_{W1} \\
+I_{W1} = I_{W2} + I_{W3} \\
+V_A - V_C = 5 \\
+V_B - V_A = -3I_{W1} \\
+V_C - V_B = -2I_{W2} \\
+V_C - V_B = -10 -7I_{W3} \\
+V_A = 0
+\end{matrix} $$</center>
+이 연립방정식을 풀면 다음과 같은 해를 얻을 수 있다.
+<center>$$ \begin{matrix}
+I_{W0} = 0.60976 A \\
+I_{W1} = 0.60976 A \\
+I_{W2} = 1.58537 A \\
+I_{W3} = -0.97561 A
+\end{matrix} $$</center><br>
+
+> `solveCircuit` 함수를 작성하라.
+>> <span style="color:#2d8659">**Input:**</span>
+* `junctions`: 회로에 있는 모든 연결점의 `set`. 각 연결점은 `string` 또는 `tuple`로 표현된다.
+* `wires`: 전선 ID (`string` 또는 `tuple`)와 (시작 연결점, 끝 연결점) 꼴의 tuple을 연결하는 `dictionary`. 전선들을 따라가면 한 연결점에서 다른 연결점을 이을 수 있도록 제공된다. 각 전선은 한 번씩만 나타난다.
+* `resistances`: 전선 ID와 전선의 저항 (단위는 $$\Omega$$)을 연결하는 `dictionary`. 저항이 없는 경우 `0`으로 표시된다.
+* `voltages`: 전선 ID와 전선 상의 배터리에 의한 전압차 (단위는 $$V$$)를 연결하는 `dictionary`. 양이면 배터리의 양극이 끝 연결점 옆에 있다는 것을, 음이면 배터리의 양극이 시작 연결점에 있다는 것을 의미한다. 전압차가 없는 경우 `0`으로 표시된다.
+
+>> <span style="color:#2d8659">**Return:**</span>
+* 전선 ID와 그 전선의 전류 (양이면 `wires` dictionary 상의 시작 연결점에서 끝 연결점으로 흐른다는 것을 의미)를 연결하는 `dictionary`.
+
+`1e-5` 내의 계산 오차는 허용된다.
+
+다음과 같은 코드를 작성하였다. 위에서 작성한 `solveLinear`을 사용하였다.
 {% highlight ruby linenos=table %}
-def data_into_actor_dict(data):
-    """
-        한 배우의 영화를 모두 묶기 위해,
-        영화-배우 데이터 ([[actor_id_1, actor_id_2, film_id]])를 dictionary로 변환하자.
-
-        Return:
-            * actorDict: Dictionary ({actor_id: {film_id_1, film_id_2, ...}})
-                         Key: integer; Value: set
-    """
-    actorDict = {}
-    for IDs in data:
-        for actor_id in IDs[:2]:    # IDs[0]와 IDs[1] (actor_ids)
-            if actor_id not in actorDict:
-                actorDict[actor_id] = set([IDs[2]])     # actorDict[actor_id] = {film_id}
-            else:       # a set doesn't allow duplicated elements
-                actorDict[actor_id] = actorDict[actor_id] | set([IDs[2]])
-    return actorDict
-{% endhighlight %}
-
-또한 영화-배우 데이터로부터 `{actor_id: {coactor_id_1, coactor_id_2, ...}}` 꼴의 dictionary를 반환하는 코드를 작성하였다. 위에서 작성한 `data_into_film_dict`와 `data_into_actor_dict`를 사용하였다.
-{% highlight ruby linenos=table %}
-def data_into_coactor_dict(data):
-    """
-        한 배우의 동료 배우 (같은 영화에 출연한 배우)를 모두 묶기 위해,
-        영화-배우 데이터 ([[actor_id_1, actor_id_2, film_id]])를 dictionary로 변환하자.
-
-        Return:
-            * coactorDict: Dictionary ({actor_id: {coactor_id_1, coactor_id_2, ...}})
-                           Key: integer; Value: set
-    """
-    filmDict = data_into_film_dict(data)
-    actorDict = data_into_actor_dict(data)
-    coactorDict = {}
-    for actor_id in actorDict:
-        for film_id in actorDict[actor_id]:
-            if actor_id not in coactorDict:   # 각 배우의 첫 번째
-                coactorDict[actor_id] = filmDict[film_id]
-            else:
-                coactorDict[actor_id] = coactorDict[actor_id] | filmDict[film_id]
-        # actor_id's co-actors shouldn't include actor_id itself
-        coactorDict[actor_id] = coactorDict[actor_id] - set([actor_id])
-    return coactorDict
-{% endhighlight %}
-
-그 후 다음 코드를 작성하였다. Kevin Bacon의 id는 `4724`이다. `get_ids_with_actor_number` 작성 시 Bacon이 아닌 다른 배우로부터도 actor number를 구할 수 있도록 중심 배우의 id를 `center_id`로 두었다.
-{% highlight ruby linenos=table %}
-def get_ids_with_actor_number(coactorDict, center_id, n):
+def solveCircuit(junctions, wires, resistances, voltages):
     """
         Input:
-            * n: actor number (center_id가 4724일 때 Bacon number)
+            * junctions: 연결점의 set. 각 연결점은 string 또는 tuple이다.
+            * wires: {wire ID: (start J, end J)} 형태의 dictionary.
+            * resistances: {wire ID: R} 형태의 dictionary. 저항이 없으면 0.
+            * voltages: {wire ID: V} 형태의 dictionary. 전압차가 없으면 0.
 
         Return:
-            * (Actor number n의 배우 ID set, actor number 0 ~ n의 배우 ID set) 꼴의 tuple
+            * result: {wire ID: I} 형태의 dictionary.
     """
-    if n == 0:
-        ids = {center_id}
-        ids_so_far = {center_id}
-    else:
-        # junc_ids (junction ids): actor IDs with Bacon number (n-1)
-        junc_ids, junc_ids_so_far = get_ids_with_actor_number(coactorDict, center_id, n - 1)
-        idSet = set()
-        for junc_id in junc_ids:
-            idSet = idSet | coactorDict[junc_id]    # junc_id의 coactor IDs를 append
-        ids = idSet - junc_ids_so_far
-        ids_so_far = idSet | junc_ids_so_far
-    return ids, ids_so_far
+    variables = junctions.copy()        # 연결점은 전압을 나타낸다
+    equations = []
+    for W in wires:
+        variables = variables | {W}     # 전선은 전류를 나타낸다; 총 (J+W)개 변수
 
-def get_actors_with_bacon_number(data, n):
-    """
-        Input:
-            * n: Bacon number
+        # Ohm's Law로 W개 식을 얻는다
+        volt_term = -voltages[W]
+        res_term = resistances[W]
+        # wires[W][0]: 시작 연결점 (전압), wires[W][1]: 끝 연결점 (전압), W: 전선 ID (전류)
+        equations.append({wires[W][0]: -1, wires[W][1]: 1, W: res_term, 1: volt_term})
 
-        Return:
-            * Bacon number n을 갖는 배우들의 ID set
-    """
-    coactorDict = data_into_coactor_dict(data)
-    return get_ids_with_actor_number(coactorDict, 4724, n)[0]   # Kevin Bacon의 ID는 4724
+    # 한 연결점을 grounding해 1개 식을 얻는다
+    junctionsList = list(junctions)
+    equations.append({junctionsList[0]: 1})
+
+    # Kirchhoff's Current Law로 (J-1)개 식을 얻는다
+    for J in junctionsList[:-1]:  # (J-1)개의 독립적인 전류 식이 존재한다; 마지막 식은 필요없다
+        equation = {}
+        for W in wires:
+            if wires[W][1] == J:    # 전선 W의 끝 연결점이 J일 때
+                equation[W] = 1
+            if wires[W][0] == J:    # 전선 W의 시작 연결점이 J일 때
+                equation[W] = -1
+        equations.append(equation)
+
+    solution = solveLinear(variables, equations)    # (J+W)개 변수의 해
+    result = {}
+    for variable in solution:
+        # result는 W개 변수 (전류)의 해이다; J개 변수 (전압)은 필요없다
+        if variable not in junctions:
+            result[variable] = solution[variable]
+    return result
 {% endhighlight %}
 
-이에 추가로, 배우 ID를 이름으로 바꾸는 함수도 작성하였다.
+다음과 같이 위 코드를 테스트하였다. 테스트 회로는 상술한 회로와 같다.
 {% highlight ruby linenos=table %}
-import json
-
-with open('resources/names.json') as f:
-    namesDict = json.load(f)
-
-def ids_into_names(ids):
-    nameList = list(namesDict.keys())
-    idList = list(namesDict.values())
-    names = set()
-    for id in ids:
-        names.add(nameList[idList.index(id)])
-    if len(names) == 0:
-        return None
-    else:
-        return names
-{% endhighlight %}
-
-다음과 같이 위 코드를 테스트하였다. `Lenovo Ideapad S340 (Ryzen 5)`으로 실행한 결과 70초 ~ 75초가 소요된다.
-{% highlight ruby linenos=table %}
-import time
-import json
-
-with open('resources/large.json') as f:
-    largedb = json.load(f)
-
-# large.json에서, 누가 Bacon number 6를 갖는가?
-print('Start processing BN 6 in large.json:', time.process_time(), 's')
-print('Actors of BN 6 in large.json:', ids_into_names(get_actors_with_bacon_number(largedb, 6)))
-print('End processing BN 6 in large.json:', time.process_time(), 's')   # 70 ~ 75 s
+# Solve the circuit given below.
+    junctions = {'A', 'B', 'C'}
+    wires = {'0': ('C', 'A'), '1': ('A', 'B'), '2': ('B', 'C'), '3': ('B', 'C')}
+    resistances = {'0': 0, '1': 3, '2': 2, '3': 7}
+    voltages = {'0': 5, '1': 0, '2': 0, '3': -10}
+    print('Solution for the circuit (current of each wire):\n',
+          '\t', solveCircuit(junctions, wires, resistances, voltages))
 {% endhighlight %}
 
 {% highlight language %}
-  >>   Start processing BN 6 in large.json: 1.1875 s
-  >>   Actors of BN 6 in large.json: {'Iva Ilakovac', 'Sven Batinic', 'Vjeran Tin Turk', 'Anton Radacic'}
-  >>   End processing BN 6 in large.json: 73.203125 s
-{% endhighlight %}<br/>
-
-### 3. Paths
-> `get_bacon_path` 함수를 작성하라.
->> <span style="color:#2d8659">**Input:**</span> 배우-영화 데이터 (`data`), 배우 ID (`actor_id`).<br/>
->> <span style="color:#2d8659">**Return:**</span> Kevin Bacon으로부터 입력한 배우로 이어지는 배우 ID들의 list, 즉 'Bacon path'.<br/>
->> Path가 존재하지 않으면 `None`.
-
-예를 들어, Julia Roberts의 Bacon path는 `[4724, 3087, 1204]`이다. 이는 Kevin Bacon (`id=4724`)은 Julia Roberts (`id=1204`)와 같은 영화에 출연한 Robert Duvall (`id=3087`)과 같은 영화에 출연했다는 의미이다. Bacon path는 고유하지 않으며, 도착 배우가 같은 어떤 최단 경로라도 답이 될 수 있다.
-
-> `get_path` 함수를 작성하라.
->> <span style="color:#2d8659">**Input:**</span> 배우-영화 데이터 (`data`), 두 배우의 ID (`actor_id_1`, `actor_id_2`).<br/>
->> <span style="color:#2d8659">**Return:**</span> 입력한 한 배우로부터 입력한 다른 배우로 이어지는 배우 ID들의 list. Path가 존재하지 않으면 `None`.
-
-Kevin Bacon은 사실 특별한 사람이 아니며, 다른 어떤 배우를 중심으로도 path를 찾을 수 있다. 역시 출발 배우와 도착 배우가 같은 어떤 최단 경로라도 답이 될 수 있다.
-
-다음과 같이 코드를 작성하였다. 위에서 작성한 `data_into_coactor_dict`와 `get_ids_with_actor_number`를 사용하였다.
-{% highlight ruby linenos=table %}
-def get_bacon_path(data, actor_id):
-    return get_path(data, 4724, actor_id)   # Kevin Bacon의 ID는 4724
-
-def get_path(data, center_id, actor_id):
-    """
-        Inputs:
-            * center_id: center_id가 4724일 때는 Bacon path
-
-        Return:
-            * path: center_id로 시작하여 actor_id로 끝나는 list
-    """
-    coactorDict = data_into_coactor_dict(data)
-
-    ANactorList = []    # ANactorList[i]: AN i를 갖는 배우 ID의 set ({actor_id_1, actor_id_2, ...})
-    n = 0
-    pathExist = True
-    while True:     # ANactorList를 만들자; len(ANactorList) = actor_id의 AN
-        junc_ids = get_ids_with_actor_number(coactorDict, center_id, n)[0]
-        if actor_id in junc_ids:
-            break
-        elif len(junc_ids) == 0:    # path가 존재하지 않으면
-            pathExist = False
-            break
-        ANactorList.append(junc_ids)
-        n += 1
-
-    if not pathExist:   # path가 존재하지 않으면
-        return None
-    else:
-        path = [actor_id]     # path를 거꾸로 탐색하자
-        for i in range(n):
-            for id in ANactorList[-(i+1)]:
-                if id in coactorDict[path[i]]:
-                    path.append(id)
-                    break
-        path.reverse()    # path는 center_id로 시작하고 actor_id로 끝난다
-        return path
-{% endhighlight %}
-
-다음과 같이 `get_bacon_path`를 테스트하였다. `large.json`에서 Kevin Bacon - Malena Alterio path를 구하는 코드는 `Lenovo Ideapad S340 (Ryzen 5)`으로 실행한 결과 135초 ~ 140초가 소요된다.
-{% highlight ruby linenos=table %}
-import jason
-import time
-
-with open('resources/small.json') as f:
-    smalldb = json.load(f)
-
-print(get_bacon_path(smalldb, 6908))    # BN 1 (len(bacon_path) should be 2)
-print(get_bacon_path(smalldb, 2561))    # BN 2 (len(bacon_path) should be 3)
-print(get_bacon_path(smalldb, 10500))   # BN 3 (len(bacon_path) should be 4)
-
-with open('resources/large.json') as f:
-    largedb = json.load(f)
-
-# What is the path of actors from Kevin Bacon to Malena Alterio (BN 5) in large.json?
-print('\nStart get_bacon_path (BN 5) in large.json:', time.process_time(), 's')
-print('The path from Kevin Bacon - Melana Alterio in large.json:',
-      get_bacon_path(largedb, namesDict['Malena Alterio']))
-print('End get_bacon_path (BN 5) in large.json:', time.process_time(), 's')     # 135 ~ 140 s
-{% endhighlight %}
-
-{% highlight language %}
-  >>   [4724, 6908]
-  >>   [4724, 1532, 2561]
-  >>   [4724, 2876, 16927, 10500]
-  >>
-  >>   Start get_bacon_path (BN 5) in large.json: 73.21875 s
-  >>   The path from Kevin Bacon - Melana Alterio in large.json: [4724, 6159, 3872, 16441, 34020, 96428]
-  >>   End get_bacon_path (BN 5) in large.json: 210.328125 s
-{% endhighlight %}
-
-또, 다음과 같이 `get_path`를 테스트하였다. `Lenovo Ideapad S340 (Ryzen 5)`으로 실행한 결과 35초 ~ 40초가 소요된다.
-{% highlight ruby linenos=table %}
-import jason
-import time
-
-with open('resources/large.json') as f:
-    largedb = json.load(f)
-
-# What is the minimal path of actors from Al Hoxie to Betsy Palmer in large.json?
-print('\nStart get_path (AN 6) in large.json:', time.process_time(), 's')
-print('The path from Al Hoxie - Betsy Palmer in large.json:',
-      get_path(largedb, namesDict['Al Hoxie'], namesDict['Betsy Palmer']))
-print('End get_path (AN 6) in large.json:', time.process_time(), 's')       # 35 ~ 40 s
-{% endhighlight %}
-
-{% highlight language %}
-  >>   Start get_path (AN 6) in large.json: 212.328125 s
-  >>   The path from Al Hoxie - Betsy Palmer in large.json: [1408949, 14664, 8841, 11147, 32, 4724, 37469]
-  >>   End get_path (AN 6) in large.json: 249.0 s
+  >>   Solution for the circuit (current of each wire):
+  >>   {'0': 0.6097560975609754, '3': -0.975609756097561, '2': 1.5853658536585367, '1': 0.6097560975609755}
 {% endhighlight %}<br/>
 
 ### 4. 끝맺음
-이것으로 [MIT OCW 6.009] Fundamentals of Programming 강의의 세 번째 문제, [Lab 3: Circuit Solver][circit-solver] 풀이를 완료하였다. 시간 단축을 위해 최대한 list 대신 dictionary 및 set를 활용하였다. 추가 시간 단축을 위해서는 어떻게 더 효율적으로 재귀 호출을 할지 고민해야 할 것 같다.
+이것으로 [MIT OCW 6.009] Fundamentals of Programming 강의의 세 번째 문제, [Lab 3: Circuit Solver][circuit-solver] 풀이를 완료하였다. 상술한 테스트 외에, 문제 템플릿에서 주어진 테스트도 모두 통과하는 것을 확인하였다.
 
 [circuit-solver]: https://py.mit.edu/fall19/labs/lab3

@@ -815,7 +815,8 @@ a {
 blockquote {
   border-left: 4px solid #b3e6cc;
   padding-left: 18px;
-  margin-left: 21px;
+  margin-left: 5px;
+  margin-right: 0;
   /* font-style: italic; */
   color: #311e3e;
 }
@@ -1212,7 +1213,7 @@ pre code {
 }
 
 .page-content {
-  margin-top: 50px;
+  margin-top: 20px;
   margin-bottom: 100px;
   background-color: #fff;
   padding: 20px;
@@ -1654,6 +1655,7 @@ pre code {
 @media only screen and (max-width: 768px) {
   .page-content {
     margin-top: 20px;
+    font-size: 90%;
   }
   .main-header .logo a {
     font-size: 24px;

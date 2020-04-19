@@ -1,0 +1,737 @@
+I"��<p>Python으로 [MIT OCW 6.009] Fundamentals of Programming 강의의 세 번째 문제, <a href="https://py.mit.edu/fall19/labs/lab3">Lab 3: Circuit Solver</a>를 풀어보자 (<a href="/assets/files/6.009-lab3.zip" download="">문제 템플릿</a>).<br /></p>
+
+<h3 id="1-a-system-of-linear-equations">1. A System of Linear Equations</h3>
+<p>각 선형 식은 변수와 계수를 연결하는 <code class="highlighter-rouge">dictionary</code>로 표현된다. 상수항은 key <code class="highlighter-rouge">1</code>로 표현된다. 예를 들어, <script type="math/tex">2x + 3.5y + 4z + 5 = 0</script>은 <code class="highlighter-rouge">{'x': 2, 'y': 3.5, 'z': 4, 1: 5}</code>로 표현된다. 연립방정식은 식 dictionaries의 <code class="highlighter-rouge">list</code>로 표현된다.</p>
+
+<p>본 문제에서는 연립방정식을 풀기 위해 substitution method를 쓰는 것을 추천한다. 모든 연립방정식의 식은 서로 독립이라고 가정한다. 다음과 같은 연립방정식이 있다고 하자.<br /></p>
+<center>$$ \begin{matrix}
+x + 2y + 4z - 1 = 0 \\
+2x + y = 0 \\
+2x + 3y + 4z + 5 = 0
+\end{matrix} $$</center>
+<p><strong>Step 1.</strong><br />
+대입할 식, <em>substitution equation</em> 을 고른다. 어떤 식이어도 되지만, 속도를 위해서 가장 변수가 적은 식을 고른다. 이 경우에는 <script type="math/tex">2x + y = 0</script>을 고르게 된다.</p>
+
+<p><strong>Step 2.</strong><br />
+이 식의 변수 중 <em>substituted variable</em> 을 고른다. 어떤 변수여도 되지만, 정확도를 위해서 계수의 절댓값이 가장 큰 변수를 고른다. 이 경우에는 <script type="math/tex">2</script>를 계수로 가지는 <script type="math/tex">x</script>를 고르게 된다.</p>
+
+<p><strong>Step 3.</strong><br />
+<em>Substitution equation</em> 을 <em>substituted variable</em> 에 대해 정리한다. 이 경우에는 <script type="math/tex">x = -0.5y</script>가 된다.</p>
+
+<p><strong>Step 4.</strong><br />
+<em>Substituted variable</em> 에 대한 식을 다른 식들에 대입한다. 즉, <em>substituted variable</em> 을 소거한다. 이 경우에는 다음과 같이 소거된다.</p>
+<center>$$ \begin{matrix}
+(-0.5y) + 2y + 4z - 1 = 0 \\
+2(-0.5y) + 3y + 4z + 5 = 0
+\end{matrix} $$</center>
+<p>즉,</p>
+<center>$$ \begin{matrix}
+1.5y + 4z - 1 = 0 \\
+2y + 4z + 5 = 0
+\end{matrix} $$</center>
+<p>가 된다.</p>
+
+<p><strong>Step 5.</strong><br />
+새로운 연립방정식은 변수가 하나 소거되었으며 식이 하나 적다. 따라서 재귀적으로 연립방정식의 해를 구할 수 있다. 이 경우에는 재귀 연산 끝에 다음과 같은 해를 얻는다.</p>
+<center>$$ \begin{matrix}
+y = -12 \\
+z = 4.75
+\end{matrix} $$</center>
+
+<p><strong>Step 6.</strong><br />
+마지막으로, <em>substitution equation</em> 을 이용해서 <em>substituted variable</em> 의 값을 계산한다. 즉, 위의 해를 <em>substitution equation</em> 에 대입한다. 이 경우에는 다음과 같은 해를 얻는다.</p>
+<center>$$x = 6$$</center>
+<p>본 연립방정식의 해는 <code class="highlighter-rouge">{'x': 6, 'y': -12, 'z': 4.75}</code>로 표현된다.<br /></p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">substituteEquation</code> 함수를 작성하라.</p>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Input:</strong></span></p>
+    <ul>
+      <li><code class="highlighter-rouge">equation</code>: 정리할 식.</li>
+      <li><code class="highlighter-rouge">substitutedVariable</code>: 대입할 변수.</li>
+      <li><code class="highlighter-rouge">substitutionEquation</code>: 대입할 식.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Return:</strong></span></p>
+    <ul>
+      <li>상술한 <code class="highlighter-rouge">dictionary</code> 형태의, substituted variable의 소거가 완료된 후의 식.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<p><code class="highlighter-rouge">substituteEquation</code>은 위의 <strong>step 1</strong> ~ <strong>step 4</strong> 과정을 수행하는 함수이다.</p>
+
+<p>다음과 같은 코드를 작성하였다. 향후 재귀 호출 시 전체 연립방정식을 계속 복사하는 것은 메모리 에러를 초래할 수 있으므로, 본 함수가 소거가 완료된 식을 반환할 뿐 아니라 <code class="highlighter-rouge">equation</code> 자체를 수정하게끔 하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+</pre></td><td class="code"><pre><span class="k">def</span> <span class="nf">substituteEquation</span><span class="p">(</span><span class="n">equation</span><span class="p">,</span> <span class="n">substitutedVariable</span><span class="p">,</span> <span class="n">substitutionEquation</span><span class="p">):</span>
+    <span class="s2">"""
+        Input:
+            * equation: 변수 또는 1 (상수항)을 계수와 연결하는 dictionary.
+                        e.g., {1: 2, 'x': 2, 'y': 3}은 2 + 2x + 3y = 0 의미.
+            * substitutedVariable: equation에서 소거될 변수.
+                                   정확도를 위해, substitutionEquation에서
+                                   계수의 절댓값이 가장 큰 변수이다.
+            * substitutionEquation: 소거에 사용될 식. 속도를 위해, 가장 변수가 적은 식이다.
+
+        Return:
+            * equation: 정리된 equation.
+                        이 함수는 정리된 equation을 반환할 뿐 아니라, equation 자체를 수정한다.
+    """</span>
+    <span class="k">if</span> <span class="n">substitutedVariable</span> <span class="k">in</span> <span class="ss">equation:    </span><span class="c1"># substitutedVariable이 equation에 없다면, equation 변화 X</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="k">in</span> <span class="ss">substitutionEquation:
+            </span><span class="n">coefficient</span> <span class="o">=</span> <span class="n">equation</span><span class="p">[</span><span class="n">substitutedVariable</span><span class="p">]</span> <span class="o">*</span> <span class="n">substitutionEquation</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">var</span> <span class="k">in</span> <span class="ss">equation:
+                </span><span class="n">equation</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">+=</span> <span class="n">coefficient</span>
+            <span class="ss">else:
+                </span><span class="n">equation</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">coefficient</span>
+        <span class="n">del</span><span class="p">(</span><span class="n">equation</span><span class="p">[</span><span class="n">substitutedVariable</span><span class="p">])</span>      <span class="c1"># substitutedVariable은 소거된다</span>
+    <span class="k">return</span> <span class="n">equation</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+<p><br /></p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">solveLinear</code> 함수를 작성하라.</p>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Input:</strong></span></p>
+    <ul>
+      <li><code class="highlighter-rouge">variables</code>: 연립방정식의 모든 변수의 <code class="highlighter-rouge">set</code>. 각 변수는 <code class="highlighter-rouge">string</code> 또는 <code class="highlighter-rouge">tuple</code>이다.</li>
+      <li><code class="highlighter-rouge">equations</code>: 상술한 <code class="highlighter-rouge">dictionary</code> 형태의 식을 원소로 갖는 <code class="highlighter-rouge">list</code>. 이 list의 길이는 <code class="highlighter-rouge">variables</code>의 길이와 같으며, 식은 서로 독립적이다.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Return:</strong></span></p>
+    <ul>
+      <li>각 변수를 그 값과 연결하는 <code class="highlighter-rouge">dictionary</code>. 즉, 연립방정식의 해.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<p><code class="highlighter-rouge">solveLinear</code>는 위의 <strong>step 1</strong> ~ <strong>step 6</strong> 과정을 수행하는 함수이다. <code class="highlighter-rouge">1e-5</code> 내의 계산 오차는 허용된다.</p>
+
+<p>다음과 같은 코드를 작성하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+</pre></td><td class="code"><pre><span class="k">def</span> <span class="nf">solveLinear</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">equations</span><span class="p">):</span>
+    <span class="s2">"""
+        Input:
+            * variables: 변수를 나타내는 strings 또는 tuples의 set.
+                         e.g., {'x', 'y', 'z'}
+            * equations: 선형 식들의 list. 각 식은 dictionary로 표현되며, 서로 독립적이다.
+
+        Return:
+            * result: 각 변수와 그 값을 연결하는 dictionary (solution).
+                      하나의 해가 있다고 가정한다 (len(variables) = len(equations)).
+                      1e-5 미만의 오차는 허용된다.
+    """</span>
+    <span class="k">def</span> <span class="nf">rearrange</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">equation</span><span class="p">):</span>
+    <span class="s2">""" equation을 variable에 대해 정리한다.
+        e.g., variable이 'x', equation이 {'x': 2, 'y': 1}일 때,
+              equation을 {'y': -0.5}로 만든다 (x = -0.5*y). """</span>
+        <span class="n">variable_coefficient</span> <span class="o">=</span> <span class="n">equation</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span>
+        <span class="n">del</span> <span class="p">(</span><span class="n">equation</span><span class="p">[</span><span class="n">variable</span><span class="p">])</span>    <span class="c1"># variable은 소거된다</span>
+        <span class="k">for</span> <span class="n">left_var</span> <span class="k">in</span> <span class="ss">equation:
+            </span><span class="c1"># 나머지 변수들의 계수를 수정한다</span>
+            <span class="n">equation</span><span class="p">[</span><span class="n">left_var</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">equation</span><span class="p">[</span><span class="n">left_var</span><span class="p">]</span> <span class="o">/</span> <span class="n">variable_coefficient</span>
+
+    <span class="k">if</span> <span class="n">len</span><span class="p">(</span><span class="n">equations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># 풀이 완료 (남은 변수의 수가 1)</span>
+        <span class="n">variable</span> <span class="o">=</span> <span class="n">list</span><span class="p">(</span><span class="n">variables</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">equation</span> <span class="o">=</span> <span class="n">equations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">rearrange</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">equation</span><span class="p">)</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="p">{</span><span class="ss">variable: </span><span class="n">list</span><span class="p">(</span><span class="n">equation</span><span class="p">.</span><span class="nf">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]}</span>   <span class="c1"># e.g., x = 2이면 {'x': 2}</span>
+    <span class="ss">else:
+        </span><span class="c1"># substitutionEquation: 변수가 가장 적은 식</span>
+        <span class="n">num_var</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># num_var[i]: i-th 식의 변수 갯수 (equations[i])</span>
+        <span class="k">for</span> <span class="n">equation</span> <span class="k">in</span> <span class="ss">equations:
+            </span><span class="n">num_var</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">len</span><span class="p">(</span><span class="n">equation</span><span class="p">))</span>
+        <span class="n">substitutionEquation</span> <span class="o">=</span> <span class="n">equations</span><span class="p">[</span><span class="n">num_var</span><span class="p">.</span><span class="nf">index</span><span class="p">(</span><span class="n">min</span><span class="p">(</span><span class="n">num_var</span><span class="p">))]</span>
+
+        <span class="c1"># substitutedVariable: substitutionEquation에서 계수의 절댓값이 가장 큰 변수</span>
+        <span class="n">forSubstitutedVariable</span> <span class="o">=</span> <span class="n">substitutionEquation</span><span class="p">.</span><span class="nf">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="mi">1</span> <span class="k">in</span> <span class="ss">forSubstitutedVariable:     </span><span class="c1"># substitutedVariable 고를 때 상수항은 제외해야 한다</span>
+            <span class="n">del</span><span class="p">(</span><span class="n">forSubstitutedVariable</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="k">in</span> <span class="ss">forSubstitutedVariable:
+            </span><span class="n">forSubstitutedVariable</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">abs</span><span class="p">(</span><span class="n">forSubstitutedVariable</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>      <span class="c1"># 절댓값</span>
+        <span class="n">vars</span> <span class="o">=</span> <span class="n">list</span><span class="p">(</span><span class="n">forSubstitutedVariable</span><span class="p">.</span><span class="nf">keys</span><span class="p">())</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">list</span><span class="p">(</span><span class="n">forSubstitutedVariable</span><span class="p">.</span><span class="nf">values</span><span class="p">())</span>
+        <span class="n">substitutedVariable</span> <span class="o">=</span> <span class="n">vars</span><span class="p">[</span><span class="n">values</span><span class="p">.</span><span class="nf">index</span><span class="p">(</span><span class="n">max</span><span class="p">(</span><span class="n">values</span><span class="p">))]</span>
+        <span class="n">variables</span> <span class="o">-=</span> <span class="n">set</span><span class="p">([</span><span class="n">substitutedVariable</span><span class="p">])</span>     <span class="c1"># len(variables)이 1 감소</span>
+
+        <span class="c1"># substitutionEquation을 substitutedVariable에 대해 rearrange</span>
+        <span class="n">rearrange</span><span class="p">(</span><span class="n">substitutedVariable</span><span class="p">,</span> <span class="n">substitutionEquation</span><span class="p">)</span>
+
+        <span class="n">equations</span><span class="p">.</span><span class="nf">remove</span><span class="p">(</span><span class="n">substitutionEquation</span><span class="p">)</span>  <span class="c1"># len(equations)이 1 감소</span>
+        <span class="k">for</span> <span class="n">equation</span> <span class="k">in</span> <span class="ss">equations:
+            </span><span class="c1"># modify equation and substitutionEquation</span>
+            <span class="n">substituteEquation</span><span class="p">(</span><span class="n">equation</span><span class="p">,</span> <span class="n">substitutedVariable</span><span class="p">,</span> <span class="n">substitutionEquation</span><span class="p">)</span>
+
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">solveLinear</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">equations</span><span class="p">)</span>  <span class="c1"># 소거된 equations로 재귀 호출</span>
+        <span class="n">substitutedVariable_sol</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="k">in</span> <span class="ss">solution:
+            </span><span class="k">if</span> <span class="n">var</span> <span class="k">in</span> <span class="ss">substitutionEquation:
+                </span><span class="n">substitutedVariable_sol</span> <span class="o">+=</span> <span class="n">substitutionEquation</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">*</span> <span class="n">solution</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+        <span class="k">if</span> <span class="mi">1</span> <span class="k">in</span> <span class="ss">substitutionEquation:
+            </span><span class="n">substitutedVariable_sol</span> <span class="o">+=</span> <span class="n">substitutionEquation</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>      <span class="c1"># 상수항</span>
+        <span class="n">solution</span><span class="p">[</span><span class="n">substitutedVariable</span><span class="p">]</span> <span class="o">=</span> <span class="n">substitutedVariable_sol</span>     <span class="c1"># solution에 변수 하나 더 추가</span>
+
+    <span class="k">return</span> <span class="n">solution</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>다음과 같이 위 코드를 테스트하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="code"><pre><span class="c1"># Solve the system of equations given below.</span>
+<span class="n">equations</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">'x'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s1">'z'</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+             <span class="p">{</span><span class="s1">'x'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'z'</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+             <span class="p">{</span><span class="s1">'x'</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="s1">'z'</span><span class="p">:</span> <span class="o">-</span><span class="mi">13</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="o">-</span><span class="mi">20</span><span class="p">}]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Solution for x - y + 2z + 2 = 0, x + y + 3z + 1 = 0, 11x - 13z - 20 = 0:\n'</span><span class="p">,</span>
+      <span class="s1">'\t'</span><span class="p">,</span> <span class="n">solveLinear</span><span class="p">({</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">,</span> <span class="s1">'z'</span><span class="p">},</span> <span class="n">equations</span><span class="p">),</span> <span class="s1">'\n'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">  &gt;&gt;   Solution for x - y + 2z + 2 = 0, x + y + 3z + 1 = 0, 11x - 13z - 20 = 0:
+  &gt;&gt;   {'y': 0.9506172839506175, 'x': 0.7530864197530864, 'z': -0.9012345679012347}</code></pre></figure>
+<p><br /></p>
+
+<h3 id="2-circuit-solver">2. Circuit Solver</h3>
+<blockquote>
+  <p><code class="highlighter-rouge">get_actors_with_bacon_number</code> 함수를 작성하라.</p>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Input:</strong></span></p>
+    <ul>
+      <li><code class="highlighter-rouge">data</code>: 배우-영화 데이터.<br /></li>
+      <li><code class="highlighter-rouge">n</code>: Bacon number.<br /></li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Return:</strong></span></p>
+    <ul>
+      <li>입력한 Bacon number를 갖는 모든 배우들의 ID를 포함하는 <code class="highlighter-rouge">set</code>.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<p>Bacon number가 1인 배우들을 다음과 같이 나타낼 수 있다.</p>
+<center><img src="/assets/img/20200415-bacon-number-1.png" width="400" height="400" /></center>
+<p>그렇다면 Bacon number가 2인 배우들은 다음과 같이 나타내어진다.</p>
+<center><img src="/assets/img/20200415-bacon-number-2.png" width="400" height="400" /></center>
+<p>Bacon number가 <code class="highlighter-rouge">i</code>인 배우들로부터 Bacon number가 <code class="highlighter-rouge">i+1</code>인 배우들을 구하도록 재귀 함수를 작성하여야 한다.</p>
+
+<p>우선 다음과 같이 배우-영화 데이터로부터 <code class="highlighter-rouge">{actor_id: {film_id_1, film_id_2, ...}}</code>꼴의 <code class="highlighter-rouge">dictionary</code>를 반환하는 코드를 작성하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="code"><pre><span class="k">def</span> <span class="nf">data_into_actor_dict</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="s2">"""
+        한 배우의 영화를 모두 묶기 위해,
+        영화-배우 데이터 ([[actor_id_1, actor_id_2, film_id]])를 dictionary로 변환하자.
+
+        Return:
+            * actorDict: Dictionary ({actor_id: {film_id_1, film_id_2, ...}})
+                         Key: integer; Value: set
+    """</span>
+    <span class="n">actorDict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="no">IDs</span> <span class="k">in</span> <span class="ss">data:
+        </span><span class="k">for</span> <span class="n">actor_id</span> <span class="k">in</span> <span class="no">IDs</span><span class="p">[:</span><span class="mi">2</span><span class="p">]:</span>    <span class="c1"># IDs[0]와 IDs[1] (actor_ids)</span>
+            <span class="k">if</span> <span class="n">actor_id</span> <span class="n">not</span> <span class="k">in</span> <span class="ss">actorDict:
+                </span><span class="n">actorDict</span><span class="p">[</span><span class="n">actor_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">set</span><span class="p">([</span><span class="no">IDs</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>     <span class="c1"># actorDict[actor_id] = {film_id}</span>
+            <span class="ss">else:       </span><span class="c1"># a set doesn't allow duplicated elements</span>
+                <span class="n">actorDict</span><span class="p">[</span><span class="n">actor_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">actorDict</span><span class="p">[</span><span class="n">actor_id</span><span class="p">]</span> <span class="o">|</span> <span class="n">set</span><span class="p">([</span><span class="no">IDs</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+    <span class="k">return</span> <span class="n">actorDict</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>또한 영화-배우 데이터로부터 <code class="highlighter-rouge">{actor_id: {coactor_id_1, coactor_id_2, ...}}</code> 꼴의 <code class="highlighter-rouge">dictionary</code>를 반환하는 코드를 작성하였다. 위에서 작성한 <code class="highlighter-rouge">data_into_film_dict</code>와 <code class="highlighter-rouge">data_into_actor_dict</code>를 사용하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="code"><pre><span class="k">def</span> <span class="nf">data_into_coactor_dict</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="s2">"""
+        한 배우의 동료 배우 (같은 영화에 출연한 배우)를 모두 묶기 위해,
+        영화-배우 데이터 ([[actor_id_1, actor_id_2, film_id]])를 dictionary로 변환하자.
+
+        Return:
+            * coactorDict: Dictionary ({actor_id: {coactor_id_1, coactor_id_2, ...}})
+                           Key: integer; Value: set
+    """</span>
+    <span class="n">filmDict</span> <span class="o">=</span> <span class="n">data_into_film_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">actorDict</span> <span class="o">=</span> <span class="n">data_into_actor_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">coactorDict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">actor_id</span> <span class="k">in</span> <span class="ss">actorDict:
+        </span><span class="k">for</span> <span class="n">film_id</span> <span class="k">in</span> <span class="n">actorDict</span><span class="p">[</span><span class="n">actor_id</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">actor_id</span> <span class="n">not</span> <span class="k">in</span> <span class="ss">coactorDict:   </span><span class="c1"># 각 배우의 첫 번째</span>
+                <span class="n">coactorDict</span><span class="p">[</span><span class="n">actor_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">filmDict</span><span class="p">[</span><span class="n">film_id</span><span class="p">]</span>
+            <span class="ss">else:
+                </span><span class="n">coactorDict</span><span class="p">[</span><span class="n">actor_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">coactorDict</span><span class="p">[</span><span class="n">actor_id</span><span class="p">]</span> <span class="o">|</span> <span class="n">filmDict</span><span class="p">[</span><span class="n">film_id</span><span class="p">]</span>
+        <span class="c1"># actor_id's co-actors shouldn't include actor_id itself</span>
+        <span class="n">coactorDict</span><span class="p">[</span><span class="n">actor_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">coactorDict</span><span class="p">[</span><span class="n">actor_id</span><span class="p">]</span> <span class="o">-</span> <span class="n">set</span><span class="p">([</span><span class="n">actor_id</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">coactorDict</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>그 후 다음 코드를 작성하였다. Kevin Bacon의 id는 <code class="highlighter-rouge">4724</code>이다. <code class="highlighter-rouge">get_ids_with_actor_number</code> 작성 시 Bacon이 아닌 다른 배우로부터도 actor number를 구할 수 있도록 중심 배우의 id를 <code class="highlighter-rouge">center_id</code>로 두었다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+</pre></td><td class="code"><pre><span class="k">def</span> <span class="nf">get_ids_with_actor_number</span><span class="p">(</span><span class="n">coactorDict</span><span class="p">,</span> <span class="n">center_id</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="s2">"""
+        Input:
+            * n: actor number (center_id가 4724일 때 Bacon number)
+
+        Return:
+            * (Actor number n의 배우 ID set, actor number 0 ~ n의 배우 ID set) 꼴의 tuple
+    """</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="p">{</span><span class="n">center_id</span><span class="p">}</span>
+        <span class="n">ids_so_far</span> <span class="o">=</span> <span class="p">{</span><span class="n">center_id</span><span class="p">}</span>
+    <span class="ss">else:
+        </span><span class="c1"># junc_ids (junction ids): actor IDs with Bacon number (n-1)</span>
+        <span class="n">junc_ids</span><span class="p">,</span> <span class="n">junc_ids_so_far</span> <span class="o">=</span> <span class="n">get_ids_with_actor_number</span><span class="p">(</span><span class="n">coactorDict</span><span class="p">,</span> <span class="n">center_id</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">idSet</span> <span class="o">=</span> <span class="n">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">junc_id</span> <span class="k">in</span> <span class="ss">junc_ids:
+            </span><span class="n">idSet</span> <span class="o">=</span> <span class="n">idSet</span> <span class="o">|</span> <span class="n">coactorDict</span><span class="p">[</span><span class="n">junc_id</span><span class="p">]</span>    <span class="c1"># junc_id의 coactor IDs를 append</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="n">idSet</span> <span class="o">-</span> <span class="n">junc_ids_so_far</span>
+        <span class="n">ids_so_far</span> <span class="o">=</span> <span class="n">idSet</span> <span class="o">|</span> <span class="n">junc_ids_so_far</span>
+    <span class="k">return</span> <span class="n">ids</span><span class="p">,</span> <span class="n">ids_so_far</span>
+
+<span class="k">def</span> <span class="nf">get_actors_with_bacon_number</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="s2">"""
+        Input:
+            * n: Bacon number
+
+        Return:
+            * Bacon number n을 갖는 배우들의 ID set
+    """</span>
+    <span class="n">coactorDict</span> <span class="o">=</span> <span class="n">data_into_coactor_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">get_ids_with_actor_number</span><span class="p">(</span><span class="n">coactorDict</span><span class="p">,</span> <span class="mi">4724</span><span class="p">,</span> <span class="n">n</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>   <span class="c1"># Kevin Bacon의 ID는 4724</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>이에 추가로, 배우 ID를 이름으로 바꾸는 함수도 작성하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="code"><pre><span class="n">import</span> <span class="n">json</span>
+
+<span class="n">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'resources/names.json'</span><span class="p">)</span> <span class="n">as</span> <span class="ss">f:
+    </span><span class="n">namesDict</span> <span class="o">=</span> <span class="n">json</span><span class="p">.</span><span class="nf">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">ids_into_names</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
+    <span class="n">nameList</span> <span class="o">=</span> <span class="n">list</span><span class="p">(</span><span class="n">namesDict</span><span class="p">.</span><span class="nf">keys</span><span class="p">())</span>
+    <span class="n">idList</span> <span class="o">=</span> <span class="n">list</span><span class="p">(</span><span class="n">namesDict</span><span class="p">.</span><span class="nf">values</span><span class="p">())</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="n">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="nb">id</span> <span class="k">in</span> <span class="ss">ids:
+        </span><span class="n">names</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">nameList</span><span class="p">[</span><span class="n">idList</span><span class="p">.</span><span class="nf">index</span><span class="p">(</span><span class="nb">id</span><span class="p">)])</span>
+    <span class="k">if</span> <span class="n">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="no">None</span>
+    <span class="ss">else:
+        </span><span class="k">return</span> <span class="n">names</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>다음과 같이 위 코드를 테스트하였다. <code class="highlighter-rouge">Lenovo Ideapad S340 (Ryzen 5)</code>으로 실행한 결과 70초 ~ 75초가 소요된다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="code"><pre><span class="n">import</span> <span class="n">time</span>
+<span class="n">import</span> <span class="n">json</span>
+
+<span class="n">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'resources/large.json'</span><span class="p">)</span> <span class="n">as</span> <span class="ss">f:
+    </span><span class="n">largedb</span> <span class="o">=</span> <span class="n">json</span><span class="p">.</span><span class="nf">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="c1"># large.json에서, 누가 Bacon number 6를 갖는가?</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Start processing BN 6 in large.json:'</span><span class="p">,</span> <span class="n">time</span><span class="p">.</span><span class="nf">process_time</span><span class="p">(),</span> <span class="s1">'s'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Actors of BN 6 in large.json:'</span><span class="p">,</span> <span class="n">ids_into_names</span><span class="p">(</span><span class="n">get_actors_with_bacon_number</span><span class="p">(</span><span class="n">largedb</span><span class="p">,</span> <span class="mi">6</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'End processing BN 6 in large.json:'</span><span class="p">,</span> <span class="n">time</span><span class="p">.</span><span class="nf">process_time</span><span class="p">(),</span> <span class="s1">'s'</span><span class="p">)</span>   <span class="c1"># 70 ~ 75 s</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">  &gt;&gt;   Start processing BN 6 in large.json: 1.1875 s
+  &gt;&gt;   Actors of BN 6 in large.json: {'Iva Ilakovac', 'Sven Batinic', 'Vjeran Tin Turk', 'Anton Radacic'}
+  &gt;&gt;   End processing BN 6 in large.json: 73.203125 s</code></pre></figure>
+<p><br /></p>
+
+<h3 id="3-paths">3. Paths</h3>
+<blockquote>
+  <p><code class="highlighter-rouge">get_bacon_path</code> 함수를 작성하라.</p>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Input:</strong></span></p>
+    <ul>
+      <li><code class="highlighter-rouge">data</code>: 배우-영화 데이터.<br /></li>
+      <li><code class="highlighter-rouge">actor_id</code>: 배우 ID.<br /></li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Return:</strong></span></p>
+    <ul>
+      <li>Kevin Bacon으로부터 입력한 배우로 이어지는 배우 ID들의 <code class="highlighter-rouge">list</code>, 즉 ‘Bacon path’. Path가 존재하지 않으면 <code class="highlighter-rouge">None</code>.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<p>예를 들어, Julia Roberts의 Bacon path는 <code class="highlighter-rouge">[4724, 3087, 1204]</code>이다. 이는 Kevin Bacon (<code class="highlighter-rouge">id=4724</code>)은 Julia Roberts (<code class="highlighter-rouge">id=1204</code>)와 같은 영화에 출연한 Robert Duvall (<code class="highlighter-rouge">id=3087</code>)과 같은 영화에 출연했다는 의미이다. Bacon path는 고유하지 않으며, 도착 배우가 같은 어떤 최단 경로라도 답이 될 수 있다.</p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">get_path</code> 함수를 작성하라.</p>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Input:</strong></span></p>
+    <ul>
+      <li><code class="highlighter-rouge">data</code>: 배우-영화 데이터.<br /></li>
+      <li><code class="highlighter-rouge">actor_id_1</code>, <code class="highlighter-rouge">actor_id_2</code>: 두 배우의 ID.<br /></li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Return:</strong></span></p>
+    <ul>
+      <li>입력한 한 배우로부터 입력한 다른 배우로 이어지는 배우 ID들의 <code class="highlighter-rouge">list</code>. Path가 존재하지 않으면 <code class="highlighter-rouge">None</code>.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<p>Kevin Bacon은 사실 특별한 사람이 아니며, 다른 어떤 배우를 중심으로도 path를 찾을 수 있다. 역시 출발 배우와 도착 배우가 같은 어떤 최단 경로라도 답이 될 수 있다.</p>
+
+<p>다음과 같이 코드를 작성하였다. 위에서 작성한 <code class="highlighter-rouge">data_into_coactor_dict</code>와 <code class="highlighter-rouge">get_ids_with_actor_number</code>를 사용하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+</pre></td><td class="code"><pre><span class="k">def</span> <span class="nf">get_bacon_path</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">actor_id</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">get_path</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="mi">4724</span><span class="p">,</span> <span class="n">actor_id</span><span class="p">)</span>   <span class="c1"># Kevin Bacon의 ID는 4724</span>
+
+<span class="k">def</span> <span class="nf">get_path</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">center_id</span><span class="p">,</span> <span class="n">actor_id</span><span class="p">):</span>
+    <span class="s2">"""
+        Inputs:
+            * center_id: center_id가 4724일 때는 Bacon path
+
+        Return:
+            * path: center_id로 시작하여 actor_id로 끝나는 list
+    """</span>
+    <span class="n">coactorDict</span> <span class="o">=</span> <span class="n">data_into_coactor_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="no">ANactorList</span> <span class="o">=</span> <span class="p">[]</span>    <span class="c1"># ANactorList[i]: AN i를 갖는 배우 ID의 set ({actor_id_1, actor_id_2, ...})</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">pathExist</span> <span class="o">=</span> <span class="no">True</span>
+    <span class="k">while</span> <span class="no">True</span><span class="p">:</span>     <span class="c1"># ANactorList를 만들자; len(ANactorList) = actor_id의 AN</span>
+        <span class="n">junc_ids</span> <span class="o">=</span> <span class="n">get_ids_with_actor_number</span><span class="p">(</span><span class="n">coactorDict</span><span class="p">,</span> <span class="n">center_id</span><span class="p">,</span> <span class="n">n</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">actor_id</span> <span class="k">in</span> <span class="ss">junc_ids:
+            </span><span class="k">break</span>
+        <span class="n">elif</span> <span class="n">len</span><span class="p">(</span><span class="n">junc_ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>    <span class="c1"># path가 존재하지 않으면</span>
+            <span class="n">pathExist</span> <span class="o">=</span> <span class="no">False</span>
+            <span class="k">break</span>
+        <span class="no">ANactorList</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">junc_ids</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">not</span> <span class="ss">pathExist:   </span><span class="c1"># path가 존재하지 않으면</span>
+        <span class="k">return</span> <span class="no">None</span>
+    <span class="ss">else:
+        </span><span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">actor_id</span><span class="p">]</span>     <span class="c1"># path를 거꾸로 탐색하자</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="k">for</span> <span class="nb">id</span> <span class="k">in</span> <span class="no">ANactorList</span><span class="p">[</span><span class="o">-</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)]:</span>
+                <span class="k">if</span> <span class="nb">id</span> <span class="k">in</span> <span class="n">coactorDict</span><span class="p">[</span><span class="n">path</span><span class="p">[</span><span class="n">i</span><span class="p">]]:</span>
+                    <span class="n">path</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+                    <span class="k">break</span>
+        <span class="n">path</span><span class="p">.</span><span class="nf">reverse</span><span class="p">()</span>    <span class="c1"># path는 center_id로 시작하고 actor_id로 끝난다</span>
+        <span class="k">return</span> <span class="n">path</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>다음과 같이 <code class="highlighter-rouge">get_bacon_path</code>를 테스트하였다. <code class="highlighter-rouge">large.json</code>에서 Kevin Bacon - Malena Alterio path를 구하는 코드는 <code class="highlighter-rouge">Lenovo Ideapad S340 (Ryzen 5)</code>으로 실행한 결과 135초 ~ 140초가 소요된다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="code"><pre><span class="n">import</span> <span class="n">jason</span>
+<span class="n">import</span> <span class="n">time</span>
+
+<span class="n">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'resources/small.json'</span><span class="p">)</span> <span class="n">as</span> <span class="ss">f:
+    </span><span class="n">smalldb</span> <span class="o">=</span> <span class="n">json</span><span class="p">.</span><span class="nf">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">get_bacon_path</span><span class="p">(</span><span class="n">smalldb</span><span class="p">,</span> <span class="mi">6908</span><span class="p">))</span>    <span class="c1"># BN 1 (len(bacon_path) should be 2)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">get_bacon_path</span><span class="p">(</span><span class="n">smalldb</span><span class="p">,</span> <span class="mi">2561</span><span class="p">))</span>    <span class="c1"># BN 2 (len(bacon_path) should be 3)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">get_bacon_path</span><span class="p">(</span><span class="n">smalldb</span><span class="p">,</span> <span class="mi">10500</span><span class="p">))</span>   <span class="c1"># BN 3 (len(bacon_path) should be 4)</span>
+
+<span class="n">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'resources/large.json'</span><span class="p">)</span> <span class="n">as</span> <span class="ss">f:
+    </span><span class="n">largedb</span> <span class="o">=</span> <span class="n">json</span><span class="p">.</span><span class="nf">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="c1"># What is the path of actors from Kevin Bacon to Malena Alterio (BN 5) in large.json?</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'\nStart get_bacon_path (BN 5) in large.json:'</span><span class="p">,</span> <span class="n">time</span><span class="p">.</span><span class="nf">process_time</span><span class="p">(),</span> <span class="s1">'s'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'The path from Kevin Bacon - Melana Alterio in large.json:'</span><span class="p">,</span>
+      <span class="n">get_bacon_path</span><span class="p">(</span><span class="n">largedb</span><span class="p">,</span> <span class="n">namesDict</span><span class="p">[</span><span class="s1">'Malena Alterio'</span><span class="p">]))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'End get_bacon_path (BN 5) in large.json:'</span><span class="p">,</span> <span class="n">time</span><span class="p">.</span><span class="nf">process_time</span><span class="p">(),</span> <span class="s1">'s'</span><span class="p">)</span>     <span class="c1"># 135 ~ 140 s</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">  &gt;&gt;   [4724, 6908]
+  &gt;&gt;   [4724, 1532, 2561]
+  &gt;&gt;   [4724, 2876, 16927, 10500]
+  &gt;&gt;
+  &gt;&gt;   Start get_bacon_path (BN 5) in large.json: 73.21875 s
+  &gt;&gt;   The path from Kevin Bacon - Melana Alterio in large.json: [4724, 6159, 3872, 16441, 34020, 96428]
+  &gt;&gt;   End get_bacon_path (BN 5) in large.json: 210.328125 s</code></pre></figure>
+
+<p>또, 다음과 같이 <code class="highlighter-rouge">get_path</code>를 테스트하였다. <code class="highlighter-rouge">Lenovo Ideapad S340 (Ryzen 5)</code>으로 실행한 결과 35초 ~ 40초가 소요된다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="code"><pre><span class="n">import</span> <span class="n">jason</span>
+<span class="n">import</span> <span class="n">time</span>
+
+<span class="n">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'resources/large.json'</span><span class="p">)</span> <span class="n">as</span> <span class="ss">f:
+    </span><span class="n">largedb</span> <span class="o">=</span> <span class="n">json</span><span class="p">.</span><span class="nf">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="c1"># What is the minimal path of actors from Al Hoxie to Betsy Palmer in large.json?</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'\nStart get_path (AN 6) in large.json:'</span><span class="p">,</span> <span class="n">time</span><span class="p">.</span><span class="nf">process_time</span><span class="p">(),</span> <span class="s1">'s'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'The path from Al Hoxie - Betsy Palmer in large.json:'</span><span class="p">,</span>
+      <span class="n">get_path</span><span class="p">(</span><span class="n">largedb</span><span class="p">,</span> <span class="n">namesDict</span><span class="p">[</span><span class="s1">'Al Hoxie'</span><span class="p">],</span> <span class="n">namesDict</span><span class="p">[</span><span class="s1">'Betsy Palmer'</span><span class="p">]))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'End get_path (AN 6) in large.json:'</span><span class="p">,</span> <span class="n">time</span><span class="p">.</span><span class="nf">process_time</span><span class="p">(),</span> <span class="s1">'s'</span><span class="p">)</span>       <span class="c1"># 35 ~ 40 s</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">  &gt;&gt;   Start get_path (AN 6) in large.json: 212.328125 s
+  &gt;&gt;   The path from Al Hoxie - Betsy Palmer in large.json: [1408949, 14664, 8841, 11147, 32, 4724, 37469]
+  &gt;&gt;   End get_path (AN 6) in large.json: 249.0 s</code></pre></figure>
+<p><br /></p>
+
+<h3 id="4-끝맺음">4. 끝맺음</h3>
+<p>이것으로 [MIT OCW 6.009] Fundamentals of Programming 강의의 세 번째 문제, [Lab 3: Circuit Solver][circit-solver] 풀이를 완료하였다. 시간 단축을 위해 최대한 list 대신 dictionary 및 set를 활용하였다. 추가 시간 단축을 위해서는 어떻게 더 효율적으로 재귀 호출을 할지 고민해야 할 것 같다.</p>
+
+:ET

@@ -12,18 +12,22 @@ Python으로 [MIT OCW 6.009] Fundamentals of Programming 강의의 두 번째 �
 
 *Six Degrees of Separation* 이란 지구상의 한 사람과 다른 한 사람 간에는 최대 6명의 사람이 있다는 이론이다. 본 이론의 할리우드 버전이 바로 *Bacon number* 다. 배우 Kevin Bacon은 0의 Bacon number를 갖는다. Kevin Bacon과 같은 영화에 출연한 배우는 1의 Bacon number를 갖는다. Kevin Bacon과 같은 영화에 출연한 배우와 같은 영화에 출연한 배우는 2의 Bacon number를 갖는다. 즉, 어떤 배우의 Bacon number는 *그 배우를 Kevin Bacon과 떨어뜨려 놓는 최소 영화 수* 로 정의된다.
 
-배우-영화 데이터는 list로 제공된다. 이 list는 `[actor_id_1, actor_id_2, film_id]` 형태의 list를 원소로 가지며, 이는 `actor_id_1`의 배우와 `actor_id_2`의 배우가 `film_id`의 영화에 출연했다는 의미이다. 본 문제에서는 `small.json`과 `large.json`의 두 데이터가 제공된다.
+배우-영화 데이터는 `list`로 제공된다. 이 list는 `[actor_id_1, actor_id_2, film_id]` 형태의 list를 원소로 가지며, 이는 `actor_id_1`의 배우와 `actor_id_2`의 배우가 `film_id`의 영화에 출연했다는 의미이다. 본 문제에서는 `small.json`과 `large.json`의 두 데이터가 제공된다.
 
-한편, 배우 ID-배우 이름 데이터는 `{actor_name: actor_id}` 형태의 dictionary로 제공된다. 본 문제에서는 `names.json`이 제공된다.<br/><br/>
+한편, 배우 ID-배우 이름 데이터는 `{actor_name: actor_id}` 형태의 `dictionary`로 제공된다. 본 문제에서는 `names.json`이 제공된다.<br/><br/>
 
 ### 1. Acting Together
 > `did_x_and_y_act_together` 함수를 작성하라.
->> <span style="color:#2d8659">**Input:**</span> 배우-영화 데이터 (`data`), 두 배우의 ID (`actor_id_1`, `actor_id_2`).<br/>
->> <span style="color:#2d8659">**Return:**</span> 두 배우가 같은 영화에 출연했으면 `True`, 아니면 `False`.
+>> <span style="color:#2d8659">**Input:**</span>
+* `data`: 배우-영화 데이터.<br>
+* `actor_id_1`, `actor_id_2`: 두 배우의 ID.<br>
+
+>> <span style="color:#2d8659">**Return:**</span>
+* 두 배우가 같은 영화에 출연했으면 `True`, 아니면 `False`.
 
 예를 들어, Kevin Bacon (`id=4724`)과 Steve Park (`id=4025`)은 같은 영화에 출연하지 않았으므로, `did_x_and_y_act_together(..., 4724, 4025)`는 `False`를 반환해야 한다.
 
-우선 다음과 같이 배우-영화 데이터로부터 `{film_id: {actor_id_1, actor_id_2, ...}}` 꼴의 dictionary를 반환하는 코드를 작성하였다.
+우선 다음과 같이 배우-영화 데이터로부터 `{film_id: {actor_id_1, actor_id_2, ...}}` 꼴의 `dictionary`를 반환하는 코드를 작성하였다.
 {% highlight ruby linenos=table %}
 def data_into_film_dict(data):
     """
@@ -89,8 +93,12 @@ print('Rex Linn and Samuel L. Jackson acted together:',
 
 ### 2. Bacon Number
 > `get_actors_with_bacon_number` 함수를 작성하라.
->> <span style="color:#2d8659">**Input:**</span> 배우-영화 데이터 (`data`), Bacon number (`n`).<br/>
->> <span style="color:#2d8659">**Return:**</span> 입력한 Bacon number를 갖는 모든 배우들의 ID를 포함하는 set.
+>> <span style="color:#2d8659">**Input:**</span>
+* `data`: 배우-영화 데이터.<br>
+* `n`: Bacon number.<br>
+
+>> <span style="color:#2d8659">**Return:**</span>
+* 입력한 Bacon number를 갖는 모든 배우들의 ID를 포함하는 `set`.
 
 Bacon number가 1인 배우들을 다음과 같이 나타낼 수 있다.
 <center><img src="{{site.baseurl}}/assets/img/20200415-bacon-number-1.png" width="400" height="400"></center>
@@ -98,7 +106,7 @@ Bacon number가 1인 배우들을 다음과 같이 나타낼 수 있다.
 <center><img src="{{site.baseurl}}/assets/img/20200415-bacon-number-2.png" width="400" height="400"></center>
 Bacon number가 `i`인 배우들로부터 Bacon number가 `i+1`인 배우들을 구하도록 재귀 함수를 작성하여야 한다.
 
-우선 다음과 같이 배우-영화 데이터로부터 `{actor_id: {film_id_1, film_id_2, ...}}`꼴의 dictionary를 반환하는 코드를 작성하였다.
+우선 다음과 같이 배우-영화 데이터로부터 `{actor_id: {film_id_1, film_id_2, ...}}`꼴의 `dictionary`를 반환하는 코드를 작성하였다.
 {% highlight ruby linenos=table %}
 def data_into_actor_dict(data):
     """
@@ -119,7 +127,7 @@ def data_into_actor_dict(data):
     return actorDict
 {% endhighlight %}
 
-또한 영화-배우 데이터로부터 `{actor_id: {coactor_id_1, coactor_id_2, ...}}` 꼴의 dictionary를 반환하는 코드를 작성하였다. 위에서 작성한 `data_into_film_dict`와 `data_into_actor_dict`를 사용하였다.
+또한 영화-배우 데이터로부터 `{actor_id: {coactor_id_1, coactor_id_2, ...}}` 꼴의 `dictionary`를 반환하는 코드를 작성하였다. 위에서 작성한 `data_into_film_dict`와 `data_into_actor_dict`를 사용하였다.
 {% highlight ruby linenos=table %}
 def data_into_coactor_dict(data):
     """
@@ -220,15 +228,22 @@ print('End processing BN 6 in large.json:', time.process_time(), 's')   # 70 ~ 7
 
 ### 3. Paths
 > `get_bacon_path` 함수를 작성하라.
->> <span style="color:#2d8659">**Input:**</span> 배우-영화 데이터 (`data`), 배우 ID (`actor_id`).<br/>
->> <span style="color:#2d8659">**Return:**</span> Kevin Bacon으로부터 입력한 배우로 이어지는 배우 ID들의 list, 즉 'Bacon path'.<br/>
->> Path가 존재하지 않으면 `None`.
+>> <span style="color:#2d8659">**Input:**</span>
+* `data`: 배우-영화 데이터.<br>
+* `actor_id`: 배우 ID.<br>
+
+>> <span style="color:#2d8659">**Return:**</span>
+* Kevin Bacon으로부터 입력한 배우로 이어지는 배우 ID들의 `list`, 즉 'Bacon path'. Path가 존재하지 않으면 `None`.
 
 예를 들어, Julia Roberts의 Bacon path는 `[4724, 3087, 1204]`이다. 이는 Kevin Bacon (`id=4724`)은 Julia Roberts (`id=1204`)와 같은 영화에 출연한 Robert Duvall (`id=3087`)과 같은 영화에 출연했다는 의미이다. Bacon path는 고유하지 않으며, 도착 배우가 같은 어떤 최단 경로라도 답이 될 수 있다.
 
 > `get_path` 함수를 작성하라.
->> <span style="color:#2d8659">**Input:**</span> 배우-영화 데이터 (`data`), 두 배우의 ID (`actor_id_1`, `actor_id_2`).<br/>
->> <span style="color:#2d8659">**Return:**</span> 입력한 한 배우로부터 입력한 다른 배우로 이어지는 배우 ID들의 list. Path가 존재하지 않으면 `None`.
+>> <span style="color:#2d8659">**Input:**</span>
+* `data`: 배우-영화 데이터.<br>
+* `actor_id_1`, `actor_id_2`: 두 배우의 ID.<br>
+
+>> <span style="color:#2d8659">**Return:**</span>
+* 입력한 한 배우로부터 입력한 다른 배우로 이어지는 배우 ID들의 `list`. Path가 존재하지 않으면 `None`.
 
 Kevin Bacon은 사실 특별한 사람이 아니며, 다른 어떤 배우를 중심으로도 path를 찾을 수 있다. 역시 출발 배우와 도착 배우가 같은 어떤 최단 경로라도 답이 될 수 있다.
 
@@ -327,6 +342,6 @@ print('End get_path (AN 6) in large.json:', time.process_time(), 's')       # 35
 {% endhighlight %}<br/>
 
 ### 4. 끝맺음
-이것으로 [MIT OCW 6.009] Fundamentals of Programming 강의의 두 번째 문제, [Lab 2: Bacon Number][bacon-number] 풀이를 완료하였다. 시간 단축을 위해 최대한 list 대신 dictionary 및 set를 활용하였다. 추가 시간 단축을 위해서는 어떻게 더 효율적으로 재귀 호출을 할지 고민해야 할 것 같다.
+이것으로 [MIT OCW 6.009] Fundamentals of Programming 강의의 두 번째 문제, [Lab 2: Bacon Number][bacon-number] 풀이를 완료하였다. 상술한 테스트 외에, 문제 템플릿에서 주어진 테스트도 모두 통과하는 것을 확인하였다. 시간 단축을 위해 최대한 `list` 대신 `dictionary` 및 `set`를 활용하였다. 추가 시간 단축을 위해서는 어떻게 더 효율적으로 재귀 호출을 할지 고민해야 할 것 같다.
 
 [bacon-number]: https://py.mit.edu/fall19/labs/lab2
