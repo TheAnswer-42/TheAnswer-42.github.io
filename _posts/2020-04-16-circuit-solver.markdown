@@ -195,7 +195,7 @@ print('Solution for x - y + 2z + 2 = 0, x + y + 3z + 1 = 0, 11x - 13z - 20 = 0:\
 Kirchhoff's Current Law 와 Ohm's Law를 결합하면 $$(J + W - 1)$$개 식을 얻으며, 이 식들은 서로 독립적임이 알려져 있다. 이에 더해, 한 연결점의 전압을 $$0$$으로 두는 *grounding* 을 통해 총 $$(J + W)$$개 식을 얻을 수 있다.
 
 예를 들어, 다음과 같은 회로를 보자.
-<center><img src="{{site.baseurl}}/assets/img/20200416-circuit-example.png" width="400" height="400"></center>
+<center><img src="{{site.baseurl}}/assets/img/20200416-circuit-example.PNG" width="400" height="400"></center>
 
 변수는 7개로, 다음과 같다: $$V_A, V_B, V_C, I_{W0}, I_{W1}, I_{W2}, I_{W3}$$. Kirchhoff's Current Law와 Ohm's Law를 적용하면 6개 식을 얻으며, 연결점 A에 grounding을 하면 총 식은 7개가 된다. 식은 다음과 같다:
 
