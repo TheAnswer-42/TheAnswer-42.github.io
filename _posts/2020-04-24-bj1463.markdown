@@ -1,0 +1,71 @@
+---
+layout: post
+title: 1로 만들기
+subtitle: 백준 Online Judge 1463
+date: 2020-04-24
+description: # Add post description (optional)
+img: bj.png # Add image post (optional)
+tags: [Python, Baekjoon, Dynamic Programming]
+author: # Add name author (optional)
+---
+Python으로 백준 Online Judge의 문제 1463번, [1로 만들기][1463]를 풀어보자.<br><br>
+
+> 정수 `x`에 사용할 수 있는 연산은 다음 세 가지이다:
+> 1. 3으로 나누어 떨어지면, 3으로 나눈다.
+> 2. 2로 나누어 떨어지면, 2로 나눈다.
+> 3. 1을 뺀다.
+> 정수 `x`가 주어졌을 때, 위와 같은 연산을 적절히 사용해서 1을 만들려고 한다. 연산 횟수의 최솟값을 출력하라.
+
+>> <span style="color:#2d8659">**Input:**</span>
+* 첫째 줄에 $$0 < x < 10^6$$인 정수 `x`를 입력받는다.
+
+>> <span style="color:#2d8659">**Print:**</span>
+* 첫째 줄에 연산 횟수의 최솟값을 출력한다.
+
+예를 들어, `2`를 입력받으면 `1`을 출력한다. `10`을 입력받으면 `3`을 출력한다 (10->9->3->1).
+
+처음에는 다음과 같은 코드를 작성하였다. 동적 프로그래밍을 위해 `memo`에 연산 횟수를 저장하였다.
+{% highlight ruby linenos=table %}
+def getMinOper(x, memo={}):
+    if x in memo:
+        minOper = memo[x]
+    else:
+        if x == 1:  # base case
+            minOper = 0
+        else:   # recursive case
+            divideBy3, divideBy2 = x, x     # upper bounds
+            if x % 3 == 0:
+                divideBy3 = getMinOper(x // 3, memo)
+            if x % 2 == 0:
+                divideBy2 = getMinOper(x // 2, memo)
+            minus1 = getMinOper(x - 1, memo)
+            minOper = min(divideBy3, divideBy2, minus1) + 1
+        memo[x] = minOper
+    return minOper
+
+x = int(input())
+print(getMinOper(x))
+{% endhighlight %}
+
+`x`가 1000 이하일 때는 옳은 결과를 출력했다. 그러나 Python은 재귀 호출을 1000번으로 제한하고 있기 때문에, `x`가 1000을 초과하면 다음과 같은 에러를 출력했다.
+{% highlight language %}
+  >>   RecursionError: maximum recursion depth exceeded in comparison
+{% endhighlight %}
+
+더 효율적인 방법이 필요하여 다른 분의 [코드][cf]를 참고하였다. 코드는 다음과 같다. 역시 `memo`에 연산 횟수를 저장하는 방법이다. 그러나 `x=1`, `x=2` 경우를 `memo`에 저장하고 시작하였고, `getMinOper(x // 2, memo) + x % 2`와 `getMinOper(x // 3, memo) + x % 3`만을 비교해 최소값을 구하였다.
+{% highlight ruby linenos=table %}
+def getMinOper(x, memo={1: 0, 2: 1}):
+    if x in memo:
+        return memo[x]
+    minOper = min(getMinOper(x // 2, memo) + x % 2, getMinOper(x // 3, memo) + x % 3) + 1
+    memo[x] = minOper
+    return minOper
+
+x = int(input())
+print(getMinOper(x))
+{% endhighlight %}
+
+`100000`을 입력하면 `19`가 출력되는 것을 확인하였다.
+
+[1463]: https://www.acmicpc.net/problem/1463
+[cf]: https://www.acmicpc.net/source/13694219

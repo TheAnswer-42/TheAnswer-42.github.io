@@ -4,6 +4,7 @@
   -webkit-border-radius: 3px;
           border-radius: 3px;
   margin: 0;
+  font-size: 90%;
 }
 
 /* `` operator */
@@ -1681,9 +1682,6 @@ pre code {
     left: 2.5%;
     bottom: 10%;
     color: #fff;
-  }
-  .about-body {
-    font-size: 90%;
   }
 }
 

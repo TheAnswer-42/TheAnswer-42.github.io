@@ -1,14 +1,14 @@
 ---
 layout: post
 title: Circuit Solver
-subtitle: MIT OCW 6.009 Lab 3
+subtitle: MIT OCW 6.009 (2019 Fall) Lab 3
 date: 2020-04-16
 description: # Add post description (optional)
 img: 20200416-circuit.png # Add image post (optional)
 tags: [Python, MIT OCW, 6.009]
 author: # Add name author (optional)
 ---
-Python으로 [MIT OCW 6.009] Fundamentals of Programming 강의의 세 번째 문제, [Lab 3: Circuit Solver][circuit-solver]를 풀어보자 (<a href="{{site.baseurl}}/assets/files/6.009-lab3.zip" download>문제 템플릿</a>).<br><br>
+Python으로 [MIT OCW 6.009] Fundamentals of Programming (2019년 가을) 강의의 세 번째 문제, [Lab 3: Circuit Solver][circuit-solver]를 풀어보자 (<a href="{{site.baseurl}}/assets/files/6.009-lab3.zip" download>문제 템플릿</a>).<br><br>
 
 ### 1. A System of Linear Equations
 각 선형 식은 변수와 계수를 연결하는 `dictionary`로 표현된다. 상수항은 key `1`로 표현된다. 예를 들어, $$2x + 3.5y + 4z + 5 = 0$$은 `{'x': 2, 'y': 3.5, 'z': 4, 1: 5}`로 표현된다. 연립방정식은 식 dictionaries의 `list`로 표현된다.
@@ -54,7 +54,7 @@ z = 4.75
 본 연립방정식의 해는 `{'x': 6, 'y': -12, 'z': 4.75}`로 표현된다.<br><br>
 
 > `substituteEquation` 함수를 작성하라.
->> <span style="color:#2d8659">**Input:**</span>
+>> <span style="color:#2d8659">**Parameters:**</span>
 * `equation`: 정리할 식.
 * `substitutedVariable`: 대입할 변수.
 * `substitutionEquation`: 대입할 식.
@@ -68,7 +68,7 @@ z = 4.75
 {% highlight ruby linenos=table %}
 def substituteEquation(equation, substitutedVariable, substitutionEquation):
     """
-        Input:
+        Parameters:
             * equation: 변수 또는 1 (상수항)을 계수와 연결하는 dictionary.
                         e.g., {1: 2, 'x': 2, 'y': 3}은 2 + 2x + 3y = 0 의미.
             * substitutedVariable: equation에서 소거될 변수.
@@ -92,7 +92,7 @@ def substituteEquation(equation, substitutedVariable, substitutionEquation):
 {% endhighlight %}<br>
 
 > `solveLinear` 함수를 작성하라.
->> <span style="color:#2d8659">**Input:**</span>
+>> <span style="color:#2d8659">**Parameters:**</span>
 * `variables`: 연립방정식의 모든 변수의 `set`. 각 변수는 `string` 또는 `tuple`이다.
 * `equations`: 상술한 `dictionary` 형태의 식을 원소로 갖는 `list`. 이 list의 길이는 `variables`의 길이와 같으며, 식은 서로 독립적이다.
 
@@ -105,7 +105,7 @@ def substituteEquation(equation, substitutedVariable, substitutionEquation):
 {% highlight ruby linenos=table %}
 def solveLinear(variables, equations):
     """
-        Input:
+        Parameters:
             * variables: 변수를 나타내는 strings 또는 tuples의 set.
                          e.g., {'x', 'y', 'z'}
             * equations: 선형 식들의 list. 각 식은 dictionary로 표현되며, 서로 독립적이다.
@@ -192,12 +192,13 @@ print('Solution for x - y + 2z + 2 = 0, x + y + 3z + 1 = 0, 11x - 13z - 20 = 0:\
 *Ohm's Law* 는 전선에 걸리는 전압과 전선의 저항을 연결한다. 연결점 $$A$$와 연결점 $$B$$를 연결하는 전선 $$W$$에 대해 다음이 성립한다.
 <center>$$V_B - V_A = V_W - I_W R_W$$</center>
 
-Kirchhoff's Current Law 와 Ohm's Law를 결합하면 $$(J + W - 1)$$개 식을 얻으며, 이 식들은 서로 독립적임이 알려져 있다. 이에 더해, 한 연결점의 전압을 $$0$$으로 두는 *grounding* 을 통해 총 $$(J + W)$$개 식을 얻을 수 있다.
+Kirchhoff's Current Law와 Ohm's Law를 결합하면 $$(J + W - 1)$$개 식을 얻으며, 이 식들은 서로 독립적임이 알려져 있다. 이에 더해, 한 연결점의 전압을 $$0$$으로 두는 *grounding* 을 통해 총 $$(J + W)$$개 식을 얻을 수 있다.
 
 예를 들어, 다음과 같은 회로를 보자.
 <center><img src="{{site.baseurl}}/assets/img/20200416-circuit-example.PNG" width="400" height="400"></center>
 
-변수는 7개로, 다음과 같다: $$V_A, V_B, V_C, I_{W0}, I_{W1}, I_{W2}, I_{W3}$$. Kirchhoff's Current Law와 Ohm's Law를 적용하면 6개 식을 얻으며, 연결점 A에 grounding을 하면 총 식은 7개가 된다. 식은 다음과 같다:
+변수는 7개로, 다음과 같다: $$V_A, V_B, V_C, I_{W0}, I_{W1}, I_{W2}, I_{W3}$$.<br>
+Kirchhoff's Current Law와 Ohm's Law를 적용하면 6개 식을 얻으며, 연결점 A에 grounding을 하면 총 식은 7개가 된다. 식은 다음과 같다:
 
 <center>$$ \begin{matrix}
 I_{W0} = I_{W1} \\
@@ -217,7 +218,7 @@ I_{W3} = -0.97561 A
 \end{matrix} $$</center><br>
 
 > `solveCircuit` 함수를 작성하라.
->> <span style="color:#2d8659">**Input:**</span>
+>> <span style="color:#2d8659">**Parameters:**</span>
 * `junctions`: 회로에 있는 모든 연결점의 `set`. 각 연결점은 `string` 또는 `tuple`로 표현된다.
 * `wires`: 전선 ID (`string` 또는 `tuple`)와 (시작 연결점, 끝 연결점) 꼴의 tuple을 연결하는 `dictionary`. 전선들을 따라가면 한 연결점에서 다른 연결점을 이을 수 있도록 제공된다. 각 전선은 한 번씩만 나타난다.
 * `resistances`: 전선 ID와 전선의 저항 (단위는 $$\Omega$$)을 연결하는 `dictionary`. 저항이 없는 경우 `0`으로 표시된다.
@@ -232,7 +233,7 @@ I_{W3} = -0.97561 A
 {% highlight ruby linenos=table %}
 def solveCircuit(junctions, wires, resistances, voltages):
     """
-        Input:
+        Parameters:
             * junctions: 연결점의 set. 각 연결점은 string 또는 tuple이다.
             * wires: {wire ID: (start J, end J)} 형태의 dictionary.
             * resistances: {wire ID: R} 형태의 dictionary. 저항이 없으면 0.
@@ -257,7 +258,7 @@ def solveCircuit(junctions, wires, resistances, voltages):
     equations.append({junctionsList[0]: 1})
 
     # Kirchhoff's Current Law로 (J-1)개 식을 얻는다
-    for J in junctionsList[:-1]:  # (J-1)개의 독립적인 전류 식이 존재한다; 마지막 식은 필요없다
+    for J in junctionsList[:-1]:  # (J-1)개의 독립적인 전류 식이 존재; 마지막 식은 쓰지 않는다
         equation = {}
         for W in wires:
             if wires[W][1] == J:    # 전선 W의 끝 연결점이 J일 때
@@ -269,7 +270,7 @@ def solveCircuit(junctions, wires, resistances, voltages):
     solution = solveLinear(variables, equations)    # (J+W)개 변수의 해
     result = {}
     for variable in solution:
-        # result는 W개 변수 (전류)의 해이다; J개 변수 (전압)은 필요없다
+        # result는 W개 변수 (전류)의 해; J개 변수 (전압)는 필요 X
         if variable not in junctions:
             result[variable] = solution[variable]
     return result
@@ -291,7 +292,7 @@ def solveCircuit(junctions, wires, resistances, voltages):
   >>   {'0': 0.6097560975609754, '3': -0.975609756097561, '2': 1.5853658536585367, '1': 0.6097560975609755}
 {% endhighlight %}<br/>
 
-### 4. 끝맺음
-이것으로 [MIT OCW 6.009] Fundamentals of Programming 강의의 세 번째 문제, [Lab 3: Circuit Solver][circuit-solver] 풀이를 완료하였다. 상술한 테스트 외에, 문제 템플릿에서 주어진 테스트도 모두 통과하는 것을 확인하였다.
+### 3. 끝맺음
+이것으로 [MIT OCW 6.009] Fundamentals of Programming (2019 가을) 강의의 세 번째 문제, [Lab 3: Circuit Solver][circuit-solver] 풀이를 완료하였다. 상술한 테스트 외에, 문제 템플릿에서 주어진 테스트도 모두 통과하는 것을 확인하였다.
 
 [circuit-solver]: https://py.mit.edu/fall19/labs/lab3
