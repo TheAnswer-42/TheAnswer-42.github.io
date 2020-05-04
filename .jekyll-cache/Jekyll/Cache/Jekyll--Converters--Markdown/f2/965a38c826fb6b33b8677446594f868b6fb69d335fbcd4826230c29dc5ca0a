@@ -1,9 +1,0 @@
-I"<p>Python으로 [MIT OCW 6.009] Fundamentals of Programming (2020년 봄) 강의의 두 번째 문제, <a href="https://py.mit.edu/spring20/labs/lab2">Lab 2: Bacon Number</a>를 다시 풀어보자 (<a href="/assets/files/6.009-lab2 (2020S).zip" download="">문제 템플릿</a>). <a href="https://theanswer-42.github.io/bacon-number/">저번 풀이</a>는 2019년 가을 버전이며, 두 버전은 다음을 제외하고 동일하다:<br /></p>
-<ol>
-  <li>데이터가 json 파일이 아닌 pickle 파일로 제공된다.</li>
-  <li>배우-영화 데이터가 list의 list가 아닌 tuple의 list로 제공된다.</li>
-  <li>Goal 함수에 맞는 path를 구하는 문제가 추가되었다.</li>
-  <li>소소하게, 함수 이름이 바뀌었다.<br /><br /></li>
-</ol>
-
-:ET

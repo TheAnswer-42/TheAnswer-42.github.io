@@ -2,7 +2,7 @@
 layout: post
 title: SAT Solver
 subtitle: MIT OCW 6.009 (2019 Fall) Lab 4
-date: 2020-04-28
+date: 2020-05-28
 description: # Add post description (optional)
 img: 20200422-sat-solver.png # Add image post (optional)
 tags: [Python, MIT OCW, 6.009]

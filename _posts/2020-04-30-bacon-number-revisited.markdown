@@ -9,8 +9,8 @@ tags: [Python, MIT OCW, 6.009]
 author: # Add name author (optional)
 ---
 Python으로 [MIT OCW 6.009] Fundamentals of Programming (2020년 봄) 강의의 두 번째 문제, [Lab 2: Bacon Number][bacon-number]를 다시 풀어보자 (<a href="{{site.baseurl}}/assets/files/6.009-lab2 (2020S).zip" download>문제 템플릿</a>). [저번 풀이][20200415-bacon-number]는 2019년 가을 버전이며, 두 버전은 다음을 제외하고 동일하다:<br>
-1. 데이터가 json 파일이 아닌 pickle 파일로 제공된다.
-2. 배우-영화 데이터가 list의 list가 아닌 tuple의 list로 제공된다.
+1. 데이터가 `json` 파일이 아닌 `pickle` 파일로 제공된다.
+2. 배우-영화 데이터가 `list`의 list가 아닌 `tuple`의 list로 제공된다.
 3. Goal 함수에 맞는 path를 구하는 문제가 추가되었다.
 4. 소소하게, 함수 이름이 약간 바뀌었다.<br><br>
 
@@ -251,7 +251,7 @@ print('actor_to_actor_path (AN 6) in large.pickle:', end - start, 's')    # 2019
 {% endhighlight %}<br/>
 
 ### 4. 끝맺음
-이것으로 [MIT OCW 6.009] Fundamentals of Programming (2020년 봄) 강의의 두 번째 문제, [Lab 2: Bacon Number][bacon-number] 풀이를 완료하였다. 상술한 테스트 외에, 문제 템플릿에서 주어진 테스트도 모두 통과하는 것을 확인하였다. 시간 단축을 위해 최대한 `list` 대신 `dictionary` 및 `set`를 활용하였다. 보름 전의 저번 풀이와 달리 이번에는 recursion을 사용하지 않고 BFS를 적용하였고, 프로그램이 훨씬 효율적인 것을 확인할 수 있었다. 이에 더해 코드가 간단해지고 가독성도 훨씬 향상되었으므로 장족의 발전을 한 것 같다. 더 궁금한 점은 MIT에서 제공한 <a href="{{site.baseurl}}/assets/files/6.009-lab2-solution.py" download>solution</a>을 참고하자.
+이것으로 [MIT OCW 6.009] Fundamentals of Programming (2020년 봄) 강의의 두 번째 문제, [Lab 2: Bacon Number][bacon-number] 풀이를 완료하였다. 상술한 테스트 외에, 문제 템플릿에서 주어진 테스트도 모두 통과하는 것을 확인하였다. 시간 단축을 위해 최대한 `list` 대신 `dictionary` 및 `set`를 활용하였다. 보름 전의 풀이와 달리 이번에는 recursion을 사용하지 않고 BFS를 적용하였고, 프로그램이 훨씬 효율적인 것을 확인할 수 있었다. 이에 더해 list comprehension 등을 사용해 코드가 간단해지고 가독성도 훨씬 향상되었으므로 장족의 발전을 한 것 같다. 더 궁금한 점은 MIT에서 제공한 <a href="{{site.baseurl}}/assets/files/6.009-lab2-solution.py" download>solution</a>을 참고하자.
 
 [bacon-number]: https://py.mit.edu/spring20/labs/lab2
 [20200415-bacon-number]: https://theanswer-42.github.io/bacon-number/
