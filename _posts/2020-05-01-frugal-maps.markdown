@@ -39,14 +39,14 @@ print('\tTotal number of ways:', num_ways)
 {% endhighlight %}
 
 {% highlight language %}
-  >>   In Cambridge data set...
-  >>      Total number of nodes: 6337751
-  >>      Total number of ways: 838004
+  In Cambridge data set...
+     Total number of nodes: 6337751
+     Total number of ways: 838004
 {% endhighlight %}<br>
 
-### 1. Shortest Paths
+### **1. Shortest Paths**
 > `find_short_path` 함수를 작성하라.
->> <span style="color:#2d8659">**Parameters:**</span>
+>> <span style="color:#2d8659">**Arguments:**</span>
 * `aux_structures`: 특정 자료 구조 (밑 참고).<br>
 * `loc1`: 출발 지점의 (위도, 경도) `tuple`. <br>
 * `loc2`: 도착 지점의 (위도, 경도) `tuple`.<br>
@@ -75,14 +75,14 @@ w2 = {'id': 2, 'nodes': [5, 6, 7], 'tags': {'oneway': 'yes'}}
 
 `find_short_path`의 arguments인 `aux_structures`는 직접 만들어야 하는 자료 구조이다. 자료 구조가 프로그램 효율에 매우 중요하므로 이를 잘 설계해야 한다. 즉, 최단 경로를 구할 때 전체 데이터를 다 살펴보지 않고도 필요한 질문에 답을 얻을 수 있도록 설계해야 한다. 또한 필요 없는 nodes나 ways는 저장하지 않도록 하는 것이 좋을 것이다.<br><br>
 
-### 2. Improving Runtime with Heuristics
+### **2. Improving Runtime with Heuristics**
 > Heuristic을 사용하여 `find_short_path` 함수의 효율을 높여라.
 
 출발 node로부터 node $$n$$까지의 path cost, $$g(n)$$을 최소화하는 경로가 최단 경로이다. 그러나 $$g(n)$$을 기준으로 경로를 탐색할 경우 최단 경로일 가능성이 없는 경로 (예를 들면 도착 node로부터 멀어지는 경로)를 탐색하느라 시간을 허비하게 된다. 이를 개선하기 위해 heuristic 함수, $$h(n)$$을 도입하라. $$h(n)$$은 node $$n$$에서 도착 node까지의 예측 cost이다. 이로부터 새로운 함수, $$f(n) = g(n) + h(n)$$을 계산할 수 있다. $$f(n)$$은 node $$n$$을 포함하는 최소 cost 경로의 예측 cost이다. 이 $$f(n)$$을 최소화하는 경로를 탐색함으로써 더 효율적으로 최단 경로를 찾을 수 있다. 본 문제에서는 $$h(n)$$ = `great_circle_distance(n, goal)`이 좋은 heuristic 함수가 된다. Heuristic 도입이 경로의 cost를 바꾸면 안 되며, 여러 경로 중 무엇을 먼저 탐색할지, 그 순서만 바꿔야 한다는 것에 주의하자.<br><br>
 
-### 3. Need for Speed (Limits)
+### **3. Need for Speed (Limits)**
 > `find_fast_path` 함수를 작성하라.
->> <span style="color:#2d8659">**Parameters:**</span>
+>> <span style="color:#2d8659">**Arguments:**</span>
 * `aux_structures`: 특정 자료 구조 (위 참고).<br>
 * `loc1`: 출발 지점의 (위도, 경도) `tuple`. <br>
 * `loc2`: 도착 지점의 (위도, 경도) `tuple`.<br>
@@ -94,7 +94,7 @@ w2 = {'id': 2, 'nodes': [5, 6, 7], 'tags': {'oneway': 'yes'}}
 
 Way가 `maxspeed_mph` tag를 가지고 있으면 해당 값이 그 way의 제한 속도 (mph)이다. `maxspeed_mph` tag가 없으면, 문제 템플릿 상단에 제공된 `DEFAULT_SPEED_LIMIT_MPH`에서 그 way의 `highway` 타입을 찾으면 된다.<br><br>
 
-### 4. 문제 풀이
+### **4. 문제 풀이**
 이번 포스트에서는 문제 풀이를 한꺼번에 하겠다.
 
 우선 다음과 같이 nodes, ways 데이터 세트로부터 `{node ID: (경도, 위도), ...}` 꼴의 `dictionary` (`nodeDict`)와 `{node ID: {(way 1 상의 다음 node ID, way 1의 제한 속도), (way 2 상의 다음 node ID, way 2의 제한 속도), ...}}` 꼴의 `dictionary` (`wayDict`)를 만드는 `build_auxiliary_structures`를 작성하였다. 취급하는 `highway`가 아닌 ways는 제외하였고, 그 ways의 nodes도 제외하였다. 이 데이터를 `find_fast_path`에도 사용해야 하기 때문에, 이때 필요한 제한 속도 정보도 포함시켰다.
@@ -186,8 +186,6 @@ def get_next_path_and_cost(agenda, heuristic=False):
 
 그 후 이 함수들을 이용하여 `find_optimal_path`를 작성하였다.
 {% highlight ruby linenos=table %}
-from util import read_osm_data, great_circle_distance
-
 def find_optimal_path(aux_structures, loc1, loc2, cost_function, heuristic=False):
     nodeDict, wayDict = aux_structures
 
@@ -228,6 +226,8 @@ def find_optimal_path(aux_structures, loc1, loc2, cost_function, heuristic=False
 
 다음과 같이 `find_short_path`와 `find_fast_path`를 작성하였다. `find_short_path`에는 heuristic을 도입했고, `find_fast_path`에는 하지 않았다.
 {% highlight ruby linenos=table %}
+from util import read_osm_data, great_circle_distance
+
 def find_short_path(aux_structures, loc1, loc2):
     nodeDict, _ = aux_structures
     return find_optimal_path(aux_structures, loc1, loc2,
@@ -240,10 +240,10 @@ def find_fast_path(aux_structures, loc1, loc2):
                              lambda id1, id2, speed : great_circle_distance(nodeDict[id1], nodeDict[id2]) / speed)
 {% endhighlight %}
 
-문제 템플릿과 함께 주어진 테스트를 모두 통과하는 것을 확인하였다. `Lenovo Ideapad S340 (Ryzen 5)`으로 실행할 때, `find_short_path`의 경우 heuristic을 쓰지 않을 때는 14개 테스트를 72.326초만에 실행하며, heuristic을 쓸 때는 54.358초만에 실행한다. `find_fast_path`의 경우 13개 테스트를 heuristic 없이 75.311초만에 실행하였다.<br><br>
+문제 템플릿과 함께 주어진 `test.py`의 테스트를 모두 통과하는 것을 확인하였다. `Lenovo Ideapad S340 (Ryzen 5)`으로 실행할 때, `find_short_path`의 경우 heuristic을 쓰지 않을 때는 14개 테스트 (`Test00_MITShortPaths`, `Test01_MidwestShortPaths`, `Test02_CambridgeShortPaths`)를 72.326초만에 실행하며, heuristic을 쓸 때는 54.358초만에 실행한다. `find_fast_path`의 경우 13개 테스트 (`Test03_MITFastPaths`, `Test04_MidwestFastPaths`, `Test05_CambridgeFastPaths`)를 heuristic 없이 75.311초만에 실행하였다.<br><br>
 
 
-### 5. 끝맺음
+### **5. 끝맺음**
 이것으로 [MIT OCW 6.009] Fundamentals of Programming (2020년 봄) 강의의 세 번째 문제, [Lab 3: Frugal Maps][frugal-maps] 풀이를 완료하였다. 경로 탐색 시 heuristic 함수의 사용이 프로그램 효율화에 효과적이라는 것을 확인하게 되었다. Weighted shortest path 문제에서 breadth-first search (BFS)도, depth-first search (DFS)도 아닌 새로운 경로 탐색 방법을 시도해 볼 수 있어서 좋았다. 더 궁금한 점은 MIT에서 제공한 <a href="{{site.baseurl}}/assets/files/6.009-lab3-solution (2020S).py" download>solution</a>을 참고하자.
 
 [frugal-maps]: https://py.mit.edu/spring20/labs/lab3

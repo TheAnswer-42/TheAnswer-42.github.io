@@ -1,0 +1,452 @@
+I"Ƒ<p>Python으로 [MIT OCW 6.009] Fundamentals of Programming (2020년 봄) 강의의 네 번째 문제, <a href="https://py.mit.edu/spring20/labs/lab4">Lab 4: Minesweeper</a>를 풀어보자 (<a href="/assets/files/6.009-lab4 (2020S).zip" download="">문제 템플릿</a>).</p>
+
+<p><em>Mines</em> 는 <script type="math/tex">1 \times 1</script>의 타일들로 덮인 <script type="math/tex">n \times m</script>의 직사각형 보드 (<script type="math/tex">n</script>은 행 수, <script type="math/tex">m</script>은 열 수)에서 수행하는 게임이다. 타일의 일부는 숨겨진 지뢰를 갖고 있다. 각 턴마다 플레이어는 지뢰가 아닌 타일을 소거한다 (판다). 지뢰를 파면 게임에서 지게 되며, 지뢰를 파지 않고 모든 안전한 타일을 소거하면 이긴다. 안전한 타일을 팔 경우 그 타일에 <code class="highlighter-rouge">0</code>에서 <code class="highlighter-rouge">8</code>까지의 숫자가 나타나며, 이는 인접한 타일 중 지뢰를 가진 타일의 수이다. 이에 더해 <code class="highlighter-rouge">0</code> 타일을 팔 경우 인접한 타일에는 지뢰가 없으므로, 자동으로 소거된다.<br /><br /></p>
+
+<h3 id="1-an-implementation-of-mines">1. An Implementation of <em>Mines</em></h3>
+<p>본 문제에서, <em>Mines</em> <code class="highlighter-rouge">game</code>은 다음 keys와 values를 갖는 dictionary로 나타낸다.</p>
+<ul>
+  <li><code class="highlighter-rouge">dimensions</code>: 보드의 치수 <code class="highlighter-rouge">(행 수, 열 수)</code>의 tuple.</li>
+  <li><code class="highlighter-rouge">board</code>: 2-D array (lists의 list). <code class="highlighter-rouge">game['board'][r][c]</code>는 타일 <script type="math/tex">(r, c)</script>가 폭탄을 가지면 <code class="highlighter-rouge">'.'</code>, 폭탄을 가지지 않으면 인접 폭탄의 수를 나타내는 정수이다.</li>
+  <li><code class="highlighter-rouge">mask</code>: 2-D array (lists의 list). <code class="highlighter-rouge">game['mask'][r][c]</code>는 타일 <script type="math/tex">(r, c)</script>가 플레이어에게 보이면 <code class="highlighter-rouge">True</code>, 아니면 <code class="highlighter-rouge">False</code>이다.</li>
+  <li><code class="highlighter-rouge">state</code>: 게임의 상태를 나타내는 string. 게임이 진행 중이면 <code class="highlighter-rouge">'ongoing'</code>, 승리했으면 <code class="highlighter-rouge">'victory'</code>, 졌으면 <code class="highlighter-rouge">'defeat'</code>이다. 새로운 게임의 state는 항상 <code class="highlighter-rouge">'ongoing'</code>이다.</li>
+</ul>
+
+<p><code class="highlighter-rouge">new_game_2d</code>를 호출하면 다음 예와 같이 새로운 게임이 생성된다.</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">  &gt;&gt;&gt;  game = new_game_2d(6, 6, [(3, 0), (0, 5), (1, 3), (2, 3)])
+  &gt;&gt;&gt;  dump(game)
+  board:
+      [0, 0, 1, 1, 2, '.']
+      [0, 0, 2, '.', 3, 1]
+      [1, 1, 2, '.', 2, 0]
+      ['.', 1, 1, 1, 1, 0]
+      [1, 1, 0, 0, 0, 0]
+      [0, 0, 0, 0, 0, 0]
+  dimensions: (6, 6)
+  mask:
+      [False, False, False, False, False, False]
+      [False, False, False, False, False, False]
+      [False, False, False, False, False, False]
+      [False, False, False, False, False, False]
+      [False, False, False, False, False, False]
+      [False, False, False, False, False, False]
+  state: ongoing
+  &gt;&gt;&gt;  render_2d(game)
+  [['_', '_', '_', '_', '_', '_'],
+   ['_', '_', '_', '_', '_', '_'],
+   ['_', '_', '_', '_', '_', '_'],
+   ['_', '_', '_', '_', '_', '_'],
+   ['_', '_', '_', '_', '_', '_'],
+   ['_', '_', '_', '_', '_', '_']]</code></pre></figure>
+
+<p>플레이어가 <code class="highlighter-rouge">dig_2d</code>를 호출하여 타일 <code class="highlighter-rouge">(1, 0)</code>을 파면 다음처럼 된다. 반환 값 <code class="highlighter-rouge">9</code>는 타일 9개가 밝혀졌다는 의미이다.</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">  &gt;&gt;&gt;  dig_2d(game, 1, 0)
+  9
+  &gt;&gt;&gt;  dump(game)
+  board:
+      [0, 0, 1, 1, 2, '.']
+      [0, 0, 2, '.', 3, 1]
+      [1, 1, 2, '.', 2, 0]
+      ['.', 1, 1, 1, 1, 0]
+      [1, 1, 0, 0, 0, 0]
+      [0, 0, 0, 0, 0, 0]
+  dimensions: (6, 6)
+  mask:
+      [True, True, True, False, False, False]
+      [True, True, True, False, False, False]
+      [True, True, True, False, False, False]
+      [False, False, False, False, False, False]
+      [False, False, False, False, False, False]
+      [False, False, False, False, False, False]
+  state: ongoing
+  &gt;&gt;&gt;  render_2d(game)
+  [[' ', ' ', '1', '_', '_', '_'],
+   [' ', ' ', '2', '_', '_', '_'],
+   ['1', '1', '2', '_', '_', '_'],
+   ['_', '_', '_', '_', '_', '_'],
+   ['_', '_', '_', '_', '_', '_'],
+   ['_', '_', '_', '_', '_', '_']]</code></pre></figure>
+<p><br /></p>
+
+<h3 id="11-render">1.1. Render</h3>
+<blockquote>
+  <p><code class="highlighter-rouge">render_2d</code> 함수를 작성하라.</p>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Arguments:</strong></span></p>
+    <ul>
+      <li><code class="highlighter-rouge">game</code>: 위에서 설명한 구조의 <em>Mines</em> 게임.<br /></li>
+      <li><code class="highlighter-rouge">xray</code>: <code class="highlighter-rouge">True</code>면 모든 타일을 보이게 하고, <code class="highlighter-rouge">False</code>면 <code class="highlighter-rouge">game['mask']</code>가 <code class="highlighter-rouge">True</code>인 타일만 보이게 한다.<br /></li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Return:</strong></span></p>
+    <ul>
+      <li>2D array (lists의 list). 가려진 타일은 ‘_’, 폭탄은 ‘.’, <code class="highlighter-rouge">0</code> 타일은 ‘ ‘, 인접한 폭탄이 있는 타일은 ‘1’, ‘2’ 등으로 나타낸다.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<p><code class="highlighter-rouge">render_2d</code>의 예시는 다음과 같다.</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">  &gt;&gt;&gt;  render_2d({'dimensions': (2, 4),
+  ...             'state': 'ongoing',
+  ...             'board': [['.', 3, 1, 0],
+  ...                       ['.', '.', 1, 0]],
+  ...             'mask':  [[False, True, True, False],
+  ...                       [False, False, True, False]]}, False)
+  [['_', '3', '1', '_'], ['_', '_', '1', '_']]
+
+  &gt;&gt;&gt;  render_2d({'dimensions': (2, 4),
+  ...             'state': 'ongoing',
+  ...             'board': [['.', 3, 1, 0],
+  ...                       ['.', '.', 1, 0]],
+  ...             'mask':  [[False, True, False, True],
+  ...                       [False, False, False, True]]}, True)
+  [['.', '3', '1', ' '], ['.', '.', '1', ' ']]</code></pre></figure>
+<p><br /></p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">render_ascii</code> 함수를 작성하라.</p>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Arguments:</strong></span></p>
+    <ul>
+      <li><code class="highlighter-rouge">game</code>: 위에서 설명한 구조의 <em>Mines</em> 게임.<br /></li>
+      <li><code class="highlighter-rouge">xray</code>: <code class="highlighter-rouge">True</code>면 모든 타일을 보이게 하고, <code class="highlighter-rouge">False</code>면 <code class="highlighter-rouge">game['mask']</code>가 <code class="highlighter-rouge">True</code>인 타일만 보이게 한다.<br /></li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Return:</strong></span></p>
+    <ul>
+      <li>string-based로 나타낸 게임.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<p><code class="highlighter-rouge">render_ascii</code>의 예시는 다음과 같다.</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">  &gt;&gt;&gt;  print(render_ascii({'dimensions': (2, 4),
+  ...                      'state': 'ongoing',
+  ...                      'board': [['.', 3, 1, 0],
+  ...                                ['.', '.', 1, 0]],
+  ...                      'mask':  [[True, True, True, False],
+  ...                                [False, False, True, False]]}))
+  .31_
+  __1_</code></pre></figure>
+
+<p>위의 두 함수를 모두 작성한 다음, 문제 템플릿과 함께 제공된 <code class="highlighter-rouge">server_2d.py</code>를 실행하고 <code class="highlighter-rouge">localhost:6009</code>에 접속하면 게임을 해볼 수 있다.<br /><br /></p>
+
+<h3 id="12-refactor">1.2. Refactor</h3>
+<blockquote>
+  <p>문제 템플릿에 작성되어 있는 함수 <code class="highlighter-rouge">new_game_2d</code>와 <code class="highlighter-rouge">dig_2d</code>는 옳게 작성되었으나 가독성과 효율이 좋지 않다. 이 두 함수를 개선해라.</p>
+</blockquote>
+
+<p>ㅇ<br /><br /></p>
+
+<h3 id="3-need-for-speed-limits">3. Need for Speed (Limits)</h3>
+<blockquote>
+  <p><code class="highlighter-rouge">find_fast_path</code> 함수를 작성하라.</p>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Arguments:</strong></span></p>
+    <ul>
+      <li><code class="highlighter-rouge">aux_structures</code>: 특정 자료 구조 (위 참고).<br /></li>
+      <li><code class="highlighter-rouge">loc1</code>: 출발 지점의 (위도, 경도) <code class="highlighter-rouge">tuple</code>. <br /></li>
+      <li><code class="highlighter-rouge">loc2</code>: 도착 지점의 (위도, 경도) <code class="highlighter-rouge">tuple</code>.<br /></li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Return:</strong></span></p>
+    <ul>
+      <li>(위도, 경도) tuple의 <code class="highlighter-rouge">list</code>로 나타낸 두 지점 사이의 가장 빠른 경로. 경로가 존재하지 않으면 <code class="highlighter-rouge">None</code>.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<p>위의 <code class="highlighter-rouge">find_short_path</code>는 거리에 의존하는 최단 경로지만, 사실 경로 설정 시에 우리는 거리가 아닌 시간에 관심이 있다. <code class="highlighter-rouge">find_fast_path</code>는 거리상 최단 경로가 아닌 가장 빠른 경로를 찾는다. 본 함수의 경우에는 heuristic 함수를 쓰지 않아도 좋다.</p>
+
+<p>Way가 <code class="highlighter-rouge">maxspeed_mph</code> tag를 가지고 있으면 해당 값이 그 way의 제한 속도 (mph)이다. <code class="highlighter-rouge">maxspeed_mph</code> tag가 없으면, 문제 템플릿 상단에 제공된 <code class="highlighter-rouge">DEFAULT_SPEED_LIMIT_MPH</code>에서 그 way의 <code class="highlighter-rouge">highway</code> 타입을 찾으면 된다.<br /><br /></p>
+
+<h3 id="4-문제-풀이">4. 문제 풀이</h3>
+<p>이번 포스트에서는 문제 풀이를 한꺼번에 하겠다.</p>
+
+<p>우선 다음과 같이 nodes, ways 데이터 세트로부터 <code class="highlighter-rouge">{node ID: (경도, 위도), ...}</code> 꼴의 <code class="highlighter-rouge">dictionary</code> (<code class="highlighter-rouge">nodeDict</code>)와 <code class="highlighter-rouge">{node ID: {(way 1 상의 다음 node ID, way 1의 제한 속도), (way 2 상의 다음 node ID, way 2의 제한 속도), ...}}</code> 꼴의 <code class="highlighter-rouge">dictionary</code> (<code class="highlighter-rouge">wayDict</code>)를 만드는 <code class="highlighter-rouge">build_auxiliary_structures</code>를 작성하였다. 취급하는 <code class="highlighter-rouge">highway</code>가 아닌 ways는 제외하였고, 그 ways의 nodes도 제외하였다. 이 데이터를 <code class="highlighter-rouge">find_fast_path</code>에도 사용해야 하기 때문에, 이때 필요한 제한 속도 정보도 포함시켰다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+</pre></td><td class="code"><pre><span class="n">from</span> <span class="n">util</span> <span class="n">import</span> <span class="n">read_osm_data</span><span class="p">,</span> <span class="n">great_circle_distance</span>
+
+<span class="no">ALLOWED_HIGHWAY_TYPES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'motorway'</span><span class="p">,</span> <span class="s1">'trunk'</span><span class="p">,</span> <span class="s1">'primary'</span><span class="p">,</span> <span class="s1">'secondary'</span><span class="p">,</span> <span class="s1">'tertiary'</span><span class="p">,</span> <span class="s1">'unclassified'</span><span class="p">,</span>
+    <span class="s1">'residential'</span><span class="p">,</span> <span class="s1">'living_street'</span><span class="p">,</span> <span class="s1">'motorway_link'</span><span class="p">,</span> <span class="s1">'trunk_link'</span><span class="p">,</span>
+    <span class="s1">'primary_link'</span><span class="p">,</span> <span class="s1">'secondary_link'</span><span class="p">,</span> <span class="s1">'tertiary_link'</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="no">DEFAULT_SPEED_LIMIT_MPH</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'motorway'</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+    <span class="s1">'trunk'</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span>
+    <span class="s1">'primary'</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span>
+    <span class="s1">'secondary'</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="s1">'residential'</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
+    <span class="s1">'tertiary'</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
+    <span class="s1">'unclassified'</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
+    <span class="s1">'living_street'</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="s1">'motorway_link'</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="s1">'trunk_link'</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="s1">'primary_link'</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="s1">'secondary_link'</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="s1">'tertiary_link'</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">def</span> <span class="nf">build_auxiliary_structures</span><span class="p">(</span><span class="n">nodes_filename</span><span class="p">,</span> <span class="n">ways_filename</span><span class="p">):</span>
+    <span class="n">wayDict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">way</span> <span class="k">in</span> <span class="n">read_osm_data</span><span class="p">(</span><span class="n">ways_filename</span><span class="p">):</span>
+        <span class="n">highway_type</span> <span class="o">=</span> <span class="n">way</span><span class="p">[</span><span class="s1">'tags'</span><span class="p">].</span><span class="nf">get</span><span class="p">(</span><span class="s1">'highway'</span><span class="p">,</span> <span class="no">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">highway_type</span> <span class="k">in</span> <span class="no">ALLOWED_HIGHWAY_TYPES</span><span class="p">:</span>               <span class="c1"># ALLOWED_HIGHWAY_TYPES가 아니면 무시</span>
+            <span class="k">if</span> <span class="s1">'maxspeed_mph'</span> <span class="k">in</span> <span class="n">way</span><span class="p">[</span><span class="s1">'tags'</span><span class="p">]:</span>
+                <span class="n">speed_limit</span> <span class="o">=</span> <span class="n">way</span><span class="p">[</span><span class="s1">'tags'</span><span class="p">][</span><span class="s1">'maxspeed_mph'</span><span class="p">]</span>
+            <span class="ss">else:
+                </span><span class="n">speed_limit</span> <span class="o">=</span> <span class="no">DEFAULT_SPEED_LIMIT_MPH</span><span class="p">[</span><span class="n">highway_type</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">next_node_id</span> <span class="k">in</span> <span class="n">zip</span><span class="p">(</span><span class="n">way</span><span class="p">[</span><span class="s1">'nodes'</span><span class="p">],</span> <span class="n">way</span><span class="p">[</span><span class="s1">'nodes'</span><span class="p">][</span><span class="mi">1</span><span class="p">:]):</span>
+                <span class="c1"># wayDict: {node_id: {(way 1의 다음 node_id, way 1의 speed_limit),</span>
+                <span class="c1">#                     (way 2의 다음 node_id, way 2의 speed_limit), ...}, ...}</span>
+                <span class="c1">#          다음 node_id 없으면 {node_id: set()}</span>
+                <span class="n">wayDict</span><span class="p">.</span><span class="nf">setdefault</span><span class="p">(</span><span class="n">node_id</span><span class="p">,</span> <span class="n">set</span><span class="p">()).</span><span class="nf">add</span><span class="p">((</span><span class="n">next_node_id</span><span class="p">,</span> <span class="n">speed_limit</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">way</span><span class="p">[</span><span class="s1">'tags'</span><span class="p">].</span><span class="nf">get</span><span class="p">(</span><span class="s1">'oneway'</span><span class="p">,</span> <span class="s1">'no'</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">'yes'</span><span class="p">:</span>    <span class="c1"># 'oneway'가 'yes'가 아니면 two-way</span>
+                    <span class="c1"># two-way면 반대 way도 추가</span>
+                    <span class="n">wayDict</span><span class="p">.</span><span class="nf">setdefault</span><span class="p">(</span><span class="n">next_node_id</span><span class="p">,</span> <span class="n">set</span><span class="p">()).</span><span class="nf">add</span><span class="p">((</span><span class="n">node_id</span><span class="p">,</span> <span class="n">speed_limit</span><span class="p">))</span>
+            <span class="c1"># path의 마지막 node가 wayDict에 없어도 (다음 node_id 없어도)</span>
+            <span class="c1"># relevant node이므로 추가해주어야 한다 (node_id: set())</span>
+            <span class="n">wayDict</span><span class="p">.</span><span class="nf">setdefault</span><span class="p">(</span><span class="n">way</span><span class="p">[</span><span class="s1">'nodes'</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">set</span><span class="p">())</span>
+
+    <span class="n">nodeDict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="k">in</span> <span class="n">read_osm_data</span><span class="p">(</span><span class="n">nodes_filename</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s1">'id'</span><span class="p">]</span> <span class="k">in</span> <span class="ss">wayDict:                               </span><span class="c1"># wayDict에 없는 node는 irrelevant node이므로 무시</span>
+            <span class="n">nodeDict</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s1">'id'</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s1">'lat'</span><span class="p">],</span> <span class="n">node</span><span class="p">[</span><span class="s1">'lon'</span><span class="p">])</span>   <span class="c1"># nodeDict: {node_id: (node_lat, node_lon), ...}</span>
+
+    <span class="k">return</span> <span class="n">nodeDict</span><span class="p">,</span> <span class="n">wayDict</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>또, 고려하는 way의 nodes 중 고려하지 않는 way의 node에서 가장 가까운 node를 구하는 <code class="highlighter-rouge">find_nearest_node_id</code>와 node ID의 <code class="highlighter-rouge">list</code>를 받아 node (위도, 경도)의 <code class="highlighter-rouge">list</code>를 반환하는 <code class="highlighter-rouge">node_ids_into_locs</code>를 작성하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="code"><pre><span class="n">from</span> <span class="n">util</span> <span class="n">import</span> <span class="n">read_osm_data</span><span class="p">,</span> <span class="n">great_circle_distance</span>
+
+<span class="k">def</span> <span class="nf">find_nearest_node_id</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="n">nodeDict</span><span class="p">):</span>
+    <span class="n">best</span> <span class="o">=</span> <span class="p">(</span><span class="no">None</span><span class="p">,</span> <span class="n">float</span><span class="p">(</span><span class="s1">'inf'</span><span class="p">))</span>     <span class="c1"># 초기값은 무한</span>
+    <span class="k">for</span> <span class="n">node_id</span> <span class="k">in</span> <span class="ss">nodeDict:
+        </span><span class="n">dist</span> <span class="o">=</span> <span class="n">great_circle_distance</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="n">nodeDict</span><span class="p">[</span><span class="n">node_id</span><span class="p">])</span>    <span class="c1"># nodeDict[node_id]는 (node_lat, node_lon)</span>
+        <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">best</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">best</span> <span class="o">=</span> <span class="p">(</span><span class="n">node_id</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">best</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">node_ids_into_locs</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">nodeDict</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">nodeDict</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span> <span class="k">for</span> <span class="n">node_id</span> <span class="k">in</span> <span class="n">path</span><span class="p">]</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>이에 더해, <code class="highlighter-rouge">agenda</code> (고려 대상인 경로들(과 그 cost)의 목록)에서 cost가 최소인 경로를 반환하는 함수 <code class="highlighter-rouge">get_next_path_and_cost</code>를 작성하였다. 이렇게 함으로써 도착 node에 도달하는 경로 중 가장 먼저 찾은 경로가 cost가 최소인 경로라는 것이 보장된다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="code"><pre><span class="k">def</span> <span class="nf">get_next_path_and_cost</span><span class="p">(</span><span class="n">agenda</span><span class="p">,</span> <span class="n">heuristic</span><span class="o">=</span><span class="no">False</span><span class="p">):</span>
+    <span class="s2">"""
+    agenda: (heuristic 쓸 때)    {f(n): (path, cost)}
+            (heuristic 안 쓸 때) {cost: path}
+    agenda에서 가장 f(n) 또는 cost 작은 path와 그 cost 제거 후 반환 (path, cost)
+    """</span>
+    <span class="n">smallest_f</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">agenda</span><span class="p">.</span><span class="nf">keys</span><span class="p">())</span>         <span class="c1"># heuristic 쓸 때 f(n), 안 쓸 때 cost</span>
+    <span class="n">smallest_f_path</span> <span class="o">=</span> <span class="n">agenda</span><span class="p">[</span><span class="n">smallest_f</span><span class="p">]</span>    <span class="c1"># heuristic 쓸 때 (path, cost), 안 쓸 때 path</span>
+    <span class="n">del</span> <span class="n">agenda</span><span class="p">[</span><span class="n">smallest_f</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ss">heuristic:
+        </span><span class="k">return</span> <span class="n">smallest_f_path</span>
+    <span class="k">return</span> <span class="n">smallest_f_path</span><span class="p">,</span> <span class="n">smallest_f</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>그 후 이 함수들을 이용하여 <code class="highlighter-rouge">find_optimal_path</code>를 작성하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+</pre></td><td class="code"><pre><span class="k">def</span> <span class="nf">find_optimal_path</span><span class="p">(</span><span class="n">aux_structures</span><span class="p">,</span> <span class="n">loc1</span><span class="p">,</span> <span class="n">loc2</span><span class="p">,</span> <span class="n">cost_function</span><span class="p">,</span> <span class="n">heuristic</span><span class="o">=</span><span class="no">False</span><span class="p">):</span>
+    <span class="n">nodeDict</span><span class="p">,</span> <span class="n">wayDict</span> <span class="o">=</span> <span class="n">aux_structures</span>
+
+    <span class="c1"># loc1_id, loc2_id: 각각 loc1, loc2의 nearest relevant node의 ID</span>
+    <span class="n">loc1_id</span> <span class="o">=</span> <span class="n">find_nearest_node_id</span><span class="p">(</span><span class="n">loc1</span><span class="p">,</span> <span class="n">nodeDict</span><span class="p">)</span>
+    <span class="n">loc2_id</span> <span class="o">=</span> <span class="n">find_nearest_node_id</span><span class="p">(</span><span class="n">loc2</span><span class="p">,</span> <span class="n">nodeDict</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ss">heuristic:
+        </span><span class="n">agenda</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="p">([</span><span class="n">loc1_id</span><span class="p">],</span> <span class="mi">0</span><span class="p">)}</span>                    <span class="c1"># loc1_id가 출발점; agenda = {f(n): (path, cost)}</span>
+    <span class="ss">else:
+        </span><span class="n">agenda</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="p">[</span><span class="n">loc1_id</span><span class="p">]}</span>                         <span class="c1"># agenda = {cost: path}</span>
+    <span class="n">expanded</span> <span class="o">=</span> <span class="n">set</span><span class="p">()</span>                                    <span class="c1"># 이미 분기점으로 쓰인 nodes 저장할 것</span>
+
+    <span class="c1"># loc2_id에 도달하지 못하고 cycle 만들면 while문 나가게 되어 None 반환</span>
+    <span class="k">while</span> <span class="n">not</span> <span class="n">len</span><span class="p">(</span><span class="n">agenda</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">cost</span> <span class="o">=</span> <span class="n">get_next_path_and_cost</span><span class="p">(</span><span class="n">agenda</span><span class="p">,</span> <span class="n">heuristic</span><span class="p">)</span>
+        <span class="n">junc_node_id</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>                         <span class="c1"># path의 마지막 node가 junction node가 된다</span>
+
+        <span class="k">if</span> <span class="n">junc_node_id</span> <span class="k">in</span> <span class="ss">expanded:                    </span><span class="c1"># cycle 피한다</span>
+            <span class="n">continue</span>
+
+        <span class="k">if</span> <span class="n">junc_node_id</span> <span class="o">==</span> <span class="ss">loc2_id:                     </span><span class="c1"># loc2_id에 도달하면 path 반환</span>
+            <span class="k">return</span> <span class="n">node_ids_into_locs</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">nodeDict</span><span class="p">)</span>
+
+        <span class="n">expanded</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">junc_node_id</span><span class="p">)</span>
+
+        <span class="c1"># wayDict[node_id]: {(next_node_id, speed_limit), ...}</span>
+        <span class="k">for</span> <span class="n">next_node_id</span><span class="p">,</span> <span class="n">speed_limit</span> <span class="k">in</span> <span class="n">wayDict</span><span class="p">[</span><span class="n">junc_node_id</span><span class="p">]:</span>
+            <span class="n">next_cost</span> <span class="o">=</span> <span class="n">cost</span> <span class="o">+</span> <span class="n">cost_function</span><span class="p">(</span><span class="n">junc_node_id</span><span class="p">,</span> <span class="n">next_node_id</span><span class="p">,</span> <span class="n">speed_limit</span><span class="p">)</span>
+            <span class="c1"># heuristic: f(n) = g(n) (지금까지의 cost) + h(n) (앞으로 예측되는 cost)을</span>
+            <span class="c1">#            최소화하는 path를 다음에 선택할 것</span>
+            <span class="k">if</span> <span class="ss">heuristic:
+                </span><span class="n">f</span> <span class="o">=</span> <span class="n">next_cost</span> <span class="o">+</span> <span class="n">cost_function</span><span class="p">(</span><span class="n">next_node_id</span><span class="p">,</span> <span class="n">loc2_id</span><span class="p">,</span> <span class="n">speed_limit</span><span class="p">)</span>
+                <span class="n">agenda</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="p">[</span><span class="n">next_node_id</span><span class="p">],</span> <span class="n">next_cost</span><span class="p">)</span>
+            <span class="ss">else:   </span><span class="c1"># heuristic 쓰지 않으면 cost를 최소화하는 path를 다음에 선택할 것</span>
+                <span class="n">agenda</span><span class="p">[</span><span class="n">next_cost</span><span class="p">]</span> <span class="o">=</span> <span class="n">path</span> <span class="o">+</span> <span class="p">[</span><span class="n">next_node_id</span><span class="p">]</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>다음과 같이 <code class="highlighter-rouge">find_short_path</code>와 <code class="highlighter-rouge">find_fast_path</code>를 작성하였다. <code class="highlighter-rouge">find_short_path</code>에는 heuristic을 도입했고, <code class="highlighter-rouge">find_fast_path</code>에는 하지 않았다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="code"><pre><span class="n">from</span> <span class="n">util</span> <span class="n">import</span> <span class="n">read_osm_data</span><span class="p">,</span> <span class="n">great_circle_distance</span>
+
+<span class="k">def</span> <span class="nf">find_short_path</span><span class="p">(</span><span class="n">aux_structures</span><span class="p">,</span> <span class="n">loc1</span><span class="p">,</span> <span class="n">loc2</span><span class="p">):</span>
+    <span class="n">nodeDict</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">aux_structures</span>
+    <span class="k">return</span> <span class="n">find_optimal_path</span><span class="p">(</span><span class="n">aux_structures</span><span class="p">,</span> <span class="n">loc1</span><span class="p">,</span> <span class="n">loc2</span><span class="p">,</span>
+                             <span class="nb">lambda</span> <span class="n">id1</span><span class="p">,</span> <span class="n">id2</span><span class="p">,</span> <span class="n">_</span> <span class="p">:</span> <span class="n">great_circle_distance</span><span class="p">(</span><span class="n">nodeDict</span><span class="p">[</span><span class="n">id1</span><span class="p">],</span> <span class="n">nodeDict</span><span class="p">[</span><span class="n">id2</span><span class="p">]),</span> <span class="no">True</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">find_fast_path</span><span class="p">(</span><span class="n">aux_structures</span><span class="p">,</span> <span class="n">loc1</span><span class="p">,</span> <span class="n">loc2</span><span class="p">):</span>
+    <span class="n">nodeDict</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">aux_structures</span>
+    <span class="c1"># heuristic 안 쓸 것</span>
+    <span class="k">return</span> <span class="n">find_optimal_path</span><span class="p">(</span><span class="n">aux_structures</span><span class="p">,</span> <span class="n">loc1</span><span class="p">,</span> <span class="n">loc2</span><span class="p">,</span>
+                             <span class="nb">lambda</span> <span class="n">id1</span><span class="p">,</span> <span class="n">id2</span><span class="p">,</span> <span class="n">speed</span> <span class="p">:</span> <span class="n">great_circle_distance</span><span class="p">(</span><span class="n">nodeDict</span><span class="p">[</span><span class="n">id1</span><span class="p">],</span> <span class="n">nodeDict</span><span class="p">[</span><span class="n">id2</span><span class="p">])</span> <span class="o">/</span> <span class="n">speed</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>문제 템플릿과 함께 주어진 테스트를 모두 통과하는 것을 확인하였다. <code class="highlighter-rouge">Lenovo Ideapad S340 (Ryzen 5)</code>으로 실행할 때, <code class="highlighter-rouge">find_short_path</code>의 경우 heuristic을 쓰지 않을 때는 14개 테스트 (<code class="highlighter-rouge">Test00_MITShortPaths</code>, <code class="highlighter-rouge">Test01_MidwestShortPaths</code>, <code class="highlighter-rouge">Test02_CambridgeShortPaths</code>)를 72.326초만에 실행하며, heuristic을 쓸 때는 54.358초만에 실행한다. <code class="highlighter-rouge">find_fast_path</code>의 경우 13개 테스트 (<code class="highlighter-rouge">Test03_MITFastPaths</code>, <code class="highlighter-rouge">Test04_MidwestFastPaths</code>, <code class="highlighter-rouge">Test05_CambridgeFastPaths</code>)를 heuristic 없이 75.311초만에 실행하였다.<br /><br /></p>
+
+<h3 id="5-끝맺음">5. 끝맺음</h3>
+<p>이것으로 [MIT OCW 6.009] Fundamentals of Programming (2020년 봄) 강의의 세 번째 문제, [Lab 3: Frugal Maps][frugal-maps] 풀이를 완료하였다. 경로 탐색 시 heuristic 함수의 사용이 프로그램 효율화에 효과적이라는 것을 확인하게 되었다. Weighted shortest path 문제에서 breadth-first search (BFS)도, depth-first search (DFS)도 아닌 새로운 경로 탐색 방법을 시도해 볼 수 있어서 좋았다. 더 궁금한 점은 MIT에서 제공한 <a href="/assets/files/6.009-lab4-solution (2020S).py" download="">solution</a>을 참고하자.</p>
+
+:ET

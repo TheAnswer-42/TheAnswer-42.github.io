@@ -16,9 +16,9 @@ Python으로 [MIT OCW 6.009] Fundamentals of Programming (2019년 가을) 강의
 
 한편, 배우 ID-배우 이름 데이터는 `{actor_name: actor_id}` 형태의 `dictionary`로 제공된다. 본 문제에서는 `names.json`이 제공된다.<br/><br/>
 
-### 1. Acting Together
+### **1. Acting Together**
 > `did_x_and_y_act_together` 함수를 작성하라.
->> <span style="color:#2d8659">**Parameters:**</span>
+>> <span style="color:#2d8659">**Arguments:**</span>
 * `data`: 배우-영화 데이터.<br>
 * `actor_id_1`, `actor_id_2`: 두 배우의 ID.<br>
 
@@ -52,7 +52,7 @@ def data_into_film_dict(data):
 {% highlight ruby linenos=table %}
 def did_x_and_y_act_together(data, actor_id_1, actor_id_2):
     """
-        Parameter:
+        Argument:
             * data: 배우-영화 데이터 ([[actor_id_1, actor_id_2, film_id]])
 
         Return:
@@ -87,13 +87,13 @@ print('Rex Linn and Samuel L. Jackson acted together:',
 {% endhighlight %}
 
 {% highlight language %}
-  >>   Steve Park and Craig Bierko acted together: False
-  >>   Rex Linn and Samuel L. Jackson acted together: True
+  Steve Park and Craig Bierko acted together: False
+  Rex Linn and Samuel L. Jackson acted together: True
 {% endhighlight %}<br/>
 
-### 2. Bacon Number
+### **2. Bacon Number**
 > `get_actors_with_bacon_number` 함수를 작성하라.
->> <span style="color:#2d8659">**Parameters:**</span>
+>> <span style="color:#2d8659">**Arguments:**</span>
 * `data`: 배우-영화 데이터.<br>
 * `n`: Bacon number.<br>
 
@@ -156,7 +156,7 @@ def data_into_coactor_dict(data):
 {% highlight ruby linenos=table %}
 def get_ids_with_actor_number(coactorDict, center_id, n):
     """
-        Parameter:
+        Argument:
             * n: actor number (center_id가 4724일 때 Bacon number)
 
         Return:
@@ -177,7 +177,7 @@ def get_ids_with_actor_number(coactorDict, center_id, n):
 
 def get_actors_with_bacon_number(data, n):
     """
-        Parameter:
+        Argument:
             * n: Bacon number
 
         Return:
@@ -222,13 +222,13 @@ print('get_actors_with_bacon_number (BN 6) in large.json:', end-start, 's')    #
 {% endhighlight %}
 
 {% highlight language %}
-  >>   Actors of BN 6 in large.json: {'Iva Ilakovac', 'Sven Batinic', 'Vjeran Tin Turk', 'Anton Radacic'}
-  >>   get_actors_with_bacon_number (BN 6) in large.json: 72.103125 s
+  Actors of BN 6 in large.json: {'Iva Ilakovac', 'Sven Batinic', 'Vjeran Tin Turk', 'Anton Radacic'}
+  get_actors_with_bacon_number (BN 6) in large.json: 72.103125 s
 {% endhighlight %}<br/>
 
-### 3. Paths
+### **3. Paths**
 > `get_bacon_path` 함수를 작성하라.
->> <span style="color:#2d8659">**Parameters:**</span>
+>> <span style="color:#2d8659">**Arguments:**</span>
 * `data`: 배우-영화 데이터.<br>
 * `actor_id`: 배우 ID.<br>
 
@@ -238,7 +238,7 @@ print('get_actors_with_bacon_number (BN 6) in large.json:', end-start, 's')    #
 예를 들어, Julia Roberts의 Bacon path는 `[4724, 3087, 1204]`이다. 이는 Kevin Bacon (`id=4724`)은 Julia Roberts (`id=1204`)와 같은 영화에 출연한 Robert Duvall (`id=3087`)과 같은 영화에 출연했다는 의미이다. Bacon path는 고유하지 않으며, 도착 배우가 같은 어떤 최단 경로라도 답이 될 수 있다.
 
 > `get_path` 함수를 작성하라.
->> <span style="color:#2d8659">**Parameters:**</span>
+>> <span style="color:#2d8659">**Arguments:**</span>
 * `data`: 배우-영화 데이터.<br>
 * `actor_id_1`, `actor_id_2`: 두 배우의 ID.<br>
 
@@ -254,7 +254,7 @@ def get_bacon_path(data, actor_id):
 
 def get_path(data, center_id, actor_id):
     """
-        Parameter:
+        Argument:
             * center_id: center_id가 4724일 때는 Bacon path
 
         Return:
@@ -312,12 +312,12 @@ print('get_bacon_path (BN 5) in large.json:', end-start, 's')   # 135 ~ 140 s
 {% endhighlight %}
 
 {% highlight language %}
-  >>   [4724, 6908]
-  >>   [4724, 1532, 2561]
-  >>   [4724, 2876, 16927, 10500]
-  >>
-  >>   The path from Kevin Bacon - Melana Alterio in large.json: [4724, 6159, 3872, 16441, 34020, 96428]
-  >>   get_bacon_path (BN 5) in large.json: 136.328125 s
+  [4724, 6908]
+  [4724, 1532, 2561]
+  [4724, 2876, 16927, 10500]
+
+  The path from Kevin Bacon - Melana Alterio in large.json: [4724, 6159, 3872, 16441, 34020, 96428]
+  get_bacon_path (BN 5) in large.json: 136.328125 s
 {% endhighlight %}
 
 또, 다음과 같이 `get_path`를 테스트하였다. `Lenovo Ideapad S340 (Ryzen 5)`으로 실행한 결과 35초 ~ 40초가 소요된다.
@@ -337,11 +337,11 @@ print('get_path (AN 6) in large.json:', end-start, 's')   # 35 ~ 40 s
 {% endhighlight %}
 
 {% highlight language %}
-  >>   The path from Al Hoxie - Betsy Palmer in large.json: [1408949, 14664, 8841, 11147, 32, 4724, 37469]
-  >>   get_path (AN 6) in large.json: 37.790527 s
+  The path from Al Hoxie - Betsy Palmer in large.json: [1408949, 14664, 8841, 11147, 32, 4724, 37469]
+  get_path (AN 6) in large.json: 37.790527 s
 {% endhighlight %}<br/>
 
-### 4. 끝맺음
+### **4. 끝맺음**
 이것으로 [MIT OCW 6.009] Fundamentals of Programming (2019년 가을) 강의의 두 번째 문제, [Lab 2: Bacon Number][bacon-number] 풀이를 완료하였다. 상술한 테스트 외에, 문제 템플릿에서 주어진 테스트도 모두 통과하는 것을 확인하였다. 시간 단축을 위해 최대한 `list` 대신 `dictionary` 및 `set`를 활용하였다. 추가 시간 단축을 위해서는 어떻게 더 효율적으로 재귀 호출을 할지 고민해야 할 것 같다. 사실 breadth-first search (BFS) 개념을 이 뒤에 알게 되어 미흡한 부분이 있다. MIT에서 제공한 <a href="{{site.baseurl}}/assets/files/6.009-lab2-solution.py" download>solution</a>을 참고하자. 이 solution은 2020 봄 버전이라 `json` 대신 `pickle` 파일을 사용한다.
 
 [bacon-number]: https://py.mit.edu/fall19/labs/lab2

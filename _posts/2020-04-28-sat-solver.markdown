@@ -12,7 +12,7 @@ Python으로 [MIT OCW 6.009] Fundamentals of Programming (2019년 가을) 강의
 
 이번 문제에서는 [Boolean satisfiability problem][bsp-wiki]을 다룰 것이다. Python에서는 `not`이 `or`에 우선하는 것을 주의하라. 즉, `not p or q`는 `(not p) or q`이다.<br><br>
 
-### 1. SAT Solver
+### **1. SAT Solver**
 Boolean 식은 [Conjunctive normal form (CNF)][cnf-wiki]으로 나타낼 수 있다. CNF에서 *literal* 은 변수 또는 변수의 `not`, *clause* 는 `or`로 연결된 literals, *formula* 는 `and`로 연결된 clauses다. 본 문제에서는 변수를 `string`으로, literal을 (변수, `True`/`False`) 꼴의 `tuple` 또는 `list`로, clause를 literals의 `list`로, formula를 clauses의 `list`로 나타낸다. 예를 들어,
 {% highlight ruby %}
 (a or c) and (a or not d) and (b or c)
@@ -36,7 +36,7 @@ Formula $$F$$에서 변수 `x`를 고른다. 그 후 `x`가 `True`일 때 도출
 이렇게 식을 변형함으로써 보다 효율적인 SAT solver를 작성할 수 있다.<br>
 
 > `satisfying_assignment` 함수를 작성하라.
->> <span style="color:#2d8659">**Parameters:**</span>
+>> <span style="color:#2d8659">**Arguments:**</span>
 * `formula`: 상술한 `list` 형태의 CNF formula.
 
 >> <span style="color:#2d8659">**Return:**</span>
@@ -48,7 +48,7 @@ Formula $$F$$에서 변수 `x`를 고른다. 그 후 `x`가 `True`일 때 도출
 {% highlight ruby linenos=table %}
 def substituteEquation(equation, substitutedVariable, substitutionEquation):
     """
-        Parameters:
+        Arguments:
             * equation: 변수 또는 1 (상수항)을 계수와 연결하는 dictionary.
                         e.g., {1: 2, 'x': 2, 'y': 3}은 2 + 2x + 3y = 0 의미.
             * substitutedVariable: equation에서 소거될 변수.
@@ -72,7 +72,7 @@ def substituteEquation(equation, substitutedVariable, substitutionEquation):
 {% endhighlight %}<br>
 
 > `solveLinear` 함수를 작성하라.
->> <span style="color:#2d8659">**Parameters:**</span>
+>> <span style="color:#2d8659">**Arguments:**</span>
 * `variables`: 연립방정식의 모든 변수의 `set`. 각 변수는 `string` 또는 `tuple`이다.
 * `equations`: 상술한 `dictionary` 형태의 식을 원소로 갖는 `list`. 이 list의 길이는 `variables`의 길이와 같으며, 식은 서로 독립적이다.
 
@@ -85,7 +85,7 @@ def substituteEquation(equation, substitutedVariable, substitutionEquation):
 {% highlight ruby linenos=table %}
 def solveLinear(variables, equations):
     """
-        Parameters:
+        Arguments:
             * variables: 변수를 나타내는 strings 또는 tuples의 set.
                          e.g., {'x', 'y', 'z'}
             * equations: 선형 식들의 list. 각 식은 dictionary로 표현되며, 서로 독립적이다.
@@ -160,11 +160,11 @@ print('Solution for x - y + 2z + 2 = 0, x + y + 3z + 1 = 0, 11x - 13z - 20 = 0:\
 {% endhighlight %}
 
 {% highlight language %}
-  >>   Solution for x - y + 2z + 2 = 0, x + y + 3z + 1 = 0, 11x - 13z - 20 = 0:
-  >>   {'y': 0.9506172839506175, 'x': 0.7530864197530864, 'z': -0.9012345679012347}
+  Solution for x - y + 2z + 2 = 0, x + y + 3z + 1 = 0, 11x - 13z - 20 = 0:
+  {'y': 0.9506172839506175, 'x': 0.7530864197530864, 'z': -0.9012345679012347}
 {% endhighlight %}<br/>
 
-### 2. Circuit Solver
+### **2. Circuit Solver**
 회로는 $$J$$개 연결점과 $$W$$개 전선으로 표현할 수 있다. 전류, 전압, 저항은 각각 $$I, V, R$$로 표현된다.
 
 *Kirchhoff's Current Law* 는 전류가 보존된다는 법칙이다. 즉, 각 연결점에서 들어오는 전류의 양은 나가는 전류와 양과 같다. $$J$$개 연결점에 각각 이 법칙을 적용하여 $$J$$개 식을 도출할 수 있으며, 이 중 한 식이 독립적이지 않다. 결과적으로 $$J - 1$$개의 독립적인 식을 얻을 수 있다.
@@ -198,7 +198,7 @@ I_{W3} = -0.97561 A
 \end{matrix} $$</center><br>
 
 > `solveCircuit` 함수를 작성하라.
->> <span style="color:#2d8659">**Parameters:**</span>
+>> <span style="color:#2d8659">**Arguments:**</span>
 * `junctions`: 회로에 있는 모든 연결점의 `set`. 각 연결점은 `string` 또는 `tuple`로 표현된다.
 * `wires`: 전선 ID (`string` 또는 `tuple`)와 (시작 연결점, 끝 연결점) 꼴의 tuple을 연결하는 `dictionary`. 전선들을 따라가면 한 연결점에서 다른 연결점을 이을 수 있도록 제공된다. 각 전선은 한 번씩만 나타난다.
 * `resistances`: 전선 ID와 전선의 저항 (단위는 $$\Omega$$)을 연결하는 `dictionary`. 저항이 없는 경우 `0`으로 표시된다.
@@ -213,7 +213,7 @@ I_{W3} = -0.97561 A
 {% highlight ruby linenos=table %}
 def solveCircuit(junctions, wires, resistances, voltages):
     """
-        Parameters:
+        Arguments:
             * junctions: 연결점의 set. 각 연결점은 string 또는 tuple이다.
             * wires: {wire ID: (start J, end J)} 형태의 dictionary.
             * resistances: {wire ID: R} 형태의 dictionary. 저항이 없으면 0.
@@ -268,11 +268,11 @@ def solveCircuit(junctions, wires, resistances, voltages):
 {% endhighlight %}
 
 {% highlight language %}
-  >>   Solution for the circuit (current of each wire):
-  >>   {'0': 0.6097560975609754, '3': -0.975609756097561, '2': 1.5853658536585367, '1': 0.6097560975609755}
+  Solution for the circuit (current of each wire):
+  {'0': 0.6097560975609754, '3': -0.975609756097561, '2': 1.5853658536585367, '1': 0.6097560975609755}
 {% endhighlight %}<br/>
 
-### 3. 끝맺음
+### **3. 끝맺음**
 이것으로 [MIT OCW 6.009] Fundamentals of Programming (2019 가을) 강의의 세 번째 문제, [Lab 4: SAT Solver][sat-solver] 풀이를 완료하였다. 상술한 테스트 외에, 문제 템플릿에서 주어진 테스트도 모두 통과하는 것을 확인하였다.
 
 [sat-solver]: https://py.mit.edu/fall19/labs/lab4

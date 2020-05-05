@@ -20,9 +20,9 @@ Python으로 [MIT OCW 6.009] Fundamentals of Programming (2020년 봄) 강의의
 
 한편, 배우 ID-배우 이름 데이터는 `{actor_name: actor_id}` 형태의 `dictionary`로 제공된다. 본 문제에서는 `names.pickle`이 제공된다.<br/><br/>
 
-### 1. Acting Together
+### **1. Acting Together**
 > `acted_together` 함수를 작성하라.
->> <span style="color:#2d8659">**Parameters:**</span>
+>> <span style="color:#2d8659">**Arguments:**</span>
 * `data`: 배우-영화 데이터.<br>
 * `actor_id_1`, `actor_id_2`: 두 배우의 ID.<br>
 
@@ -70,13 +70,13 @@ print('Josef Sommer and Stig Olin acted together:',
 {% endhighlight %}
 
 {% highlight language %}
-  >>   Joseph McKenna and Dan Warry-Smith acted together: True
-  >>   Josef Sommer and Stig Olin acted together: False
+  Joseph McKenna and Dan Warry-Smith acted together: True
+  Josef Sommer and Stig Olin acted together: False
 {% endhighlight %}<br/>
 
-### 2. Bacon Number
+### **2. Bacon Number**
 > `actors_with_bacon_number` 함수를 작성하라.
->> <span style="color:#2d8659">**Parameters:**</span>
+>> <span style="color:#2d8659">**Arguments:**</span>
 * `data`: 배우-영화 데이터.<br>
 * `n`: Bacon number.<br>
 
@@ -131,13 +131,13 @@ print('actors_with_bacon_number (BN 6) in large.pickle:', end - start, 's')   # 
 {% endhighlight %}
 
 {% highlight language %}
-  >>   Actors of BN 6 in large.pickle: ['Sven Batinic', 'Anton Radacic', 'Vjeran Tin Turk', 'Iva Ilakovac']
-  >>   actors_with_bacon_number (BN 6) in large.pickle: 1.9572618007659912 s
+  Actors of BN 6 in large.pickle: ['Sven Batinic', 'Anton Radacic', 'Vjeran Tin Turk', 'Iva Ilakovac']
+  actors_with_bacon_number (BN 6) in large.pickle: 1.9572618007659912 s
 {% endhighlight %}<br/>
 
-### 3. Paths
+### **3. Paths**
 > `bacon_path` 함수를 작성하라.
->> <span style="color:#2d8659">**Parameters:**</span>
+>> <span style="color:#2d8659">**Arguments:**</span>
 * `data`: 배우-영화 데이터.<br>
 * `actor_id`: 배우 ID.<br>
 
@@ -147,7 +147,7 @@ print('actors_with_bacon_number (BN 6) in large.pickle:', end - start, 's')   # 
 예를 들어, Julia Roberts의 Bacon path는 `[4724, 3087, 1204]`이다. 이는 Kevin Bacon (`id=4724`)은 Julia Roberts (`id=1204`)와 같은 영화에 출연한 Robert Duvall (`id=3087`)과 같은 영화에 출연했다는 의미이다. Bacon path는 고유하지 않으며, 도착 배우가 같은 어떤 최단 경로라도 답이 될 수 있다.
 
 > `actor_to_actor_path` 함수를 작성하라.
->> <span style="color:#2d8659">**Parameters:**</span>
+>> <span style="color:#2d8659">**Arguments:**</span>
 * `data`: 배우-영화 데이터.<br>
 * `actor_id_1`, `actor_id_2`: 두 배우의 ID.<br>
 
@@ -157,7 +157,7 @@ print('actors_with_bacon_number (BN 6) in large.pickle:', end - start, 's')   # 
 Kevin Bacon은 사실 특별한 사람이 아니며, 다른 어떤 배우를 중심으로도 path를 찾을 수 있다. 역시 출발 배우와 도착 배우가 같은 어떤 최단 경로라도 답이 될 수 있다.
 
 > `actor_path` 함수를 작성하라.
->> <span style="color:#2d8659">**Parameters:**</span>
+>> <span style="color:#2d8659">**Arguments:**</span>
 * `data`: 배우-영화 데이터.<br>
 * `actor_id`: 출발점으로 삼을 배우의 ID.<br>
 * `goal_test`: 배우 ID를 입력받아 조건에 맞으면 `True`, 아니면 `False`를 반환하는 `function`.<br>
@@ -225,8 +225,8 @@ print('bacon_path (BN 5) in large.pickle:', end - start, 's')     # 2019F 풀 �
 {% endhighlight %}
 
 {% highlight language %}
-  >>   The path from Kevin Bacon - Melana Alterio in large.pickle: [4724, 4610, 49895, 107254, 151162, 96428]
-  >>   bacon_path (BN 5) in large.pickle: 2.1766457557678223 s
+  The path from Kevin Bacon - Melana Alterio in large.pickle: [4724, 4610, 49895, 107254, 151162, 96428]
+  bacon_path (BN 5) in large.pickle: 2.1766457557678223 s
 {% endhighlight %}
 
 또, 다음과 같이 `actor_to_actor_path`를 테스트하였다. 저번 풀이에서는 `Lenovo Ideapad S340 (Ryzen 5)`으로 실행할 때 35초 ~ 40초가 소요되었다. 이번 코드로는 역시 약 2초가 소요된다.
@@ -246,11 +246,11 @@ print('actor_to_actor_path (AN 6) in large.pickle:', end - start, 's')    # 2019
 {% endhighlight %}
 
 {% highlight language %}
-  >>   The path from Al Hoxie - Betsy Palmer in large.pickle: [1408949, 14664, 8841, 19968, 14999, 107373, 37469]
-  >>   actor_to_actor_path (AN 6) in large.pickle: 2.04034423828125 s
+  The path from Al Hoxie - Betsy Palmer in large.pickle: [1408949, 14664, 8841, 19968, 14999, 107373, 37469]
+  actor_to_actor_path (AN 6) in large.pickle: 2.04034423828125 s
 {% endhighlight %}<br/>
 
-### 4. 끝맺음
+### **4. 끝맺음**
 이것으로 [MIT OCW 6.009] Fundamentals of Programming (2020년 봄) 강의의 두 번째 문제, [Lab 2: Bacon Number][bacon-number] 풀이를 완료하였다. 상술한 테스트 외에, 문제 템플릿에서 주어진 테스트도 모두 통과하는 것을 확인하였다. 시간 단축을 위해 최대한 `list` 대신 `dictionary` 및 `set`를 활용하였다. 보름 전의 풀이와 달리 이번에는 recursion을 사용하지 않고 BFS를 적용하였고, 프로그램이 훨씬 효율적인 것을 확인할 수 있었다. 이에 더해 list comprehension 등을 사용해 코드가 간단해지고 가독성도 훨씬 향상되었으므로 장족의 발전을 한 것 같다. 더 궁금한 점은 MIT에서 제공한 <a href="{{site.baseurl}}/assets/files/6.009-lab2-solution.py" download>solution</a>을 참고하자.
 
 [bacon-number]: https://py.mit.edu/spring20/labs/lab2

@@ -49,10 +49,10 @@ print(getMinOper(x))
 
 `x`가 1000 이하일 때는 옳은 결과를 출력했다. 그러나 Python은 재귀 호출을 1000번으로 제한하고 있기 때문에, `x`가 1000을 초과하면 다음과 같은 에러를 출력했다.
 {% highlight language %}
-  >>   RecursionError: maximum recursion depth exceeded in comparison
+  RecursionError: maximum recursion depth exceeded in comparison
 {% endhighlight %}
 
-더 효율적인 방법이 필요하여 다른 분의 [코드][cf]를 참고하였다. 코드는 다음과 같다. 역시 `memo`에 연산 횟수를 저장하는 방법이다. 그러나 `x=1`, `x=2` 경우를 `memo`에 저장하고 시작하였고, `getMinOper(x // 2, memo) + x % 2`와 `getMinOper(x // 3, memo) + x % 3`만을 비교해 최소값을 구하였다.
+더 효율적인 방법이 필요하여 다른 분의 [코드][cf]를 참고하였다. 작성한 코드는 다음과 같으며, 역시 `memo`에 연산 횟수를 저장하는 방법을 사용하였다. 그러나 `x=1`, `x=2` 경우를 `memo`에 저장하고 시작하였고, `getMinOper(x // 2, memo) + x % 2`와 `getMinOper(x // 3, memo) + x % 3`만을 비교해 최소값을 구하였다.
 {% highlight ruby linenos=table %}
 def getMinOper(x, memo={1: 0, 2: 1}):
     if x in memo:
