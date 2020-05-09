@@ -1,0 +1,359 @@
+I"T<p>Python으로 백준 Online Judge의 문제 15649번 ~ 15652번, <a href="https://www.acmicpc.net/problem/15649">N과 M (1)</a>, <a href="https://www.acmicpc.net/problem/15650">N과 M (2)</a>, <a href="https://www.acmicpc.net/problem/15651">N과 M (3)</a>, <a href="https://www.acmicpc.net/problem/15652">N과 M (4)</a>를 풀어보자.<br /><br /></p>
+
+<h3 id="1-n과-m-1-문제-15649번"><strong>1. N과 M (1) (문제 15649번)</strong></h3>
+<blockquote>
+  <p>자연수 <code class="highlighter-rouge">N</code>과 <code class="highlighter-rouge">M</code>이 주어졌을 때, 1부터 N까지의 자연수 중 중복 없이 M개를 고른 수열을 모두 구하는 프로그램을 작성하라.</p>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Input:</strong></span></p>
+    <ul>
+      <li>첫째 줄에 <script type="math/tex">1 \le M \le N \le 8</script>인 자연수 <code class="highlighter-rouge">N</code>과 <code class="highlighter-rouge">M</code>을 <code class="highlighter-rouge">N M</code> 꼴로 입력받는다.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Print:</strong></span></p>
+    <ul>
+      <li>한 줄에 하나씩, 문제의 조건을 만족하는 수열을 출력한다. 각 수열의 수는 공백으로 구분하여 출력한다. 수열은 사전 순으로 출력한다.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<p>순열, 즉 <script type="math/tex">{}_n\mathrm{P}_{r}</script> 문제이다.</p>
+
+<p>예를 들어, 다음을 입력받으면</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">3 1</code></pre></figure>
+
+<p>다음을 출력한다.</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">1
+2
+3</code></pre></figure>
+
+<p>또, 다음을 입력받으면</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">4 2</code></pre></figure>
+
+<p>다음을 출력한다.</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">1 2
+1 3
+1 4
+2 1
+2 3
+2 4
+3 1
+3 2
+3 4
+4 1
+4 2
+4 3</code></pre></figure>
+
+<p>다음과 같은 코드를 작성하였다. 재귀 generator를 이용하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="code"><pre><span class="k">def</span> <span class="nf">nPm</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">choose_m</span><span class="p">(</span><span class="n">list</span><span class="p">(</span><span class="n">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">m</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">choose_m</span><span class="p">(</span><span class="no">L</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">m</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="p">[]</span>
+    <span class="ss">else:
+        </span><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">range</span><span class="p">(</span><span class="n">len</span><span class="p">(</span><span class="no">L</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">seq</span> <span class="k">in</span> <span class="n">choose_m</span><span class="p">(</span><span class="no">L</span><span class="p">[</span><span class="ss">:i</span><span class="p">]</span> <span class="o">+</span> <span class="no">L</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:],</span> <span class="n">m</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="p">[</span><span class="no">L</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">+</span> <span class="n">seq</span>
+
+<span class="n">n_and_m</span> <span class="o">=</span> <span class="n">input</span><span class="p">().</span><span class="nf">split</span><span class="p">(</span><span class="s1">' '</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">seq</span> <span class="k">in</span> <span class="n">nPm</span><span class="p">(</span><span class="n">int</span><span class="p">(</span><span class="n">n_and_m</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">int</span><span class="p">(</span><span class="n">n_and_m</span><span class="p">[</span><span class="mi">1</span><span class="p">])):</span>
+    <span class="k">for</span> <span class="n">num</span> <span class="k">in</span> <span class="ss">seq:
+        </span><span class="nb">print</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="k">end</span><span class="o">=</span><span class="s1">' '</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>채점을 통과하는 것을 확인하였다.<br /><br /></p>
+
+<h3 id="2-n과-m-2-문제-15650번"><strong>2. N과 M (2) (문제 15650번)</strong></h3>
+<blockquote>
+  <p>자연수 <code class="highlighter-rouge">N</code>과 <code class="highlighter-rouge">M</code>이 주어졌을 때, 1부터 N까지의 자연수 중 중복 없이 M개를 고른 <strong>오름차순</strong> 수열을 모두 구하는 프로그램을 작성하라.</p>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Input:</strong></span></p>
+    <ul>
+      <li>첫째 줄에 <script type="math/tex">1 \le M \le N \le 8</script>인 자연수 <code class="highlighter-rouge">N</code>과 <code class="highlighter-rouge">M</code>을 <code class="highlighter-rouge">N M</code> 꼴로 입력받는다.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Print:</strong></span></p>
+    <ul>
+      <li>한 줄에 하나씩, 문제의 조건을 만족하는 수열을 출력한다. 각 수열의 수는 공백으로 구분하여 출력한다. 수열은 사전 순으로 출력한다.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<p>조합, 즉 <script type="math/tex">{}_n\mathrm{C}_{r}</script> 문제이다.</p>
+
+<p>예를 들어, 다음을 입력받으면</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">3 1</code></pre></figure>
+
+<p>다음을 출력한다.</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">1
+2
+3</code></pre></figure>
+
+<p>또, 다음을 입력받으면</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">4 2</code></pre></figure>
+
+<p>다음을 출력한다.</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">1 2
+1 3
+1 4
+2 3
+2 4
+3 4</code></pre></figure>
+
+<p>다음과 같은 코드를 작성하였다. 앞선 문제의 해법과 거의 같으며, 역시 재귀 generator를 이용하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="code"><pre><span class="k">def</span> <span class="nf">nCm</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">choose_m</span><span class="p">(</span><span class="n">list</span><span class="p">(</span><span class="n">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">m</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">choose_m</span><span class="p">(</span><span class="no">L</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">m</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="p">[]</span>
+    <span class="ss">else:
+        </span><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">range</span><span class="p">(</span><span class="n">len</span><span class="p">(</span><span class="no">L</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">seq</span> <span class="k">in</span> <span class="n">choose_m</span><span class="p">(</span><span class="no">L</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:],</span> <span class="n">m</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>    <span class="c1"># 이 줄만 다름! L[:i] + L[i+1:] 대신 L[i+1:]</span>
+                <span class="k">yield</span> <span class="p">[</span><span class="no">L</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">+</span> <span class="n">seq</span>
+
+<span class="n">n_and_m</span> <span class="o">=</span> <span class="n">input</span><span class="p">().</span><span class="nf">split</span><span class="p">(</span><span class="s1">' '</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">seq</span> <span class="k">in</span> <span class="n">nCm</span><span class="p">(</span><span class="n">int</span><span class="p">(</span><span class="n">n_and_m</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">int</span><span class="p">(</span><span class="n">n_and_m</span><span class="p">[</span><span class="mi">1</span><span class="p">])):</span>
+    <span class="k">for</span> <span class="n">num</span> <span class="k">in</span> <span class="ss">seq:
+        </span><span class="nb">print</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="k">end</span><span class="o">=</span><span class="s1">' '</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>채점을 통과하는 것을 확인하였다.<br /><br /></p>
+
+<h3 id="3-n과-m-3-문제-15651번"><strong>3. N과 M (3) (문제 15651번)</strong></h3>
+<blockquote>
+  <p>자연수 <code class="highlighter-rouge">N</code>과 <code class="highlighter-rouge">M</code>이 주어졌을 때, 1부터 N까지의 자연수 중 중복을 허용하여 M개를 고른 수열을 모두 구하는 프로그램을 작성하라.</p>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Input:</strong></span></p>
+    <ul>
+      <li>첫째 줄에 <script type="math/tex">1 \le M \le N \le 7</script>인 자연수 <code class="highlighter-rouge">N</code>과 <code class="highlighter-rouge">M</code>을 <code class="highlighter-rouge">N M</code> 꼴로 입력받는다.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Print:</strong></span></p>
+    <ul>
+      <li>한 줄에 하나씩, 문제의 조건을 만족하는 수열을 출력한다. 각 수열의 수는 공백으로 구분하여 출력한다. 수열은 사전 순으로 출력한다.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<p>중복 순열, 즉 <script type="math/tex">{}_n\mathrm{\Pi}_{r}</script> 문제이다.</p>
+
+<p>예를 들어, 다음을 입력받으면</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">3 1</code></pre></figure>
+
+<p>다음을 출력한다.</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">1
+2
+3</code></pre></figure>
+
+<p>또, 다음을 입력받으면</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">4 2</code></pre></figure>
+
+<p>다음을 출력한다.</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">1 1
+1 2
+1 3
+1 4
+2 1
+2 2
+2 3
+2 4
+3 1
+3 2
+3 3
+3 4
+4 1
+4 2
+4 3
+4 4</code></pre></figure>
+
+<p>다음과 같은 코드를 작성하였다. 앞선 문제의 해법과 거의 같으며, 역시 재귀 generator를 이용하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="code"><pre><span class="k">def</span> <span class="nf">nPim</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">choose_m</span><span class="p">(</span><span class="n">list</span><span class="p">(</span><span class="n">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">m</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">choose_m</span><span class="p">(</span><span class="no">L</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">m</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="p">[]</span>
+    <span class="ss">else:
+        </span><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">range</span><span class="p">(</span><span class="n">len</span><span class="p">(</span><span class="no">L</span><span class="p">)):</span>
+            <span class="c1"># 이 줄만 다름! L[:i] + L[i+1:] (순열)이나 L[i+1:] (조합) 대신 L</span>
+            <span class="k">for</span> <span class="n">seq</span> <span class="k">in</span> <span class="n">choose_m</span><span class="p">(</span><span class="no">L</span><span class="p">,</span> <span class="n">m</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="p">[</span><span class="no">L</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">+</span> <span class="n">seq</span>
+
+<span class="n">n_and_m</span> <span class="o">=</span> <span class="n">input</span><span class="p">().</span><span class="nf">split</span><span class="p">(</span><span class="s1">' '</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">seq</span> <span class="k">in</span> <span class="n">nPim</span><span class="p">(</span><span class="n">int</span><span class="p">(</span><span class="n">n_and_m</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">int</span><span class="p">(</span><span class="n">n_and_m</span><span class="p">[</span><span class="mi">1</span><span class="p">])):</span>
+    <span class="k">for</span> <span class="n">num</span> <span class="k">in</span> <span class="ss">seq:
+        </span><span class="nb">print</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="k">end</span><span class="o">=</span><span class="s1">' '</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>채점을 통과하는 것을 확인하였다.<br /><br /></p>
+
+<h3 id="4-n과-m-4-문제-15652번"><strong>4. N과 M (4) (문제 15652번)</strong></h3>
+<blockquote>
+  <p>자연수 <code class="highlighter-rouge">N</code>과 <code class="highlighter-rouge">M</code>이 주어졌을 때, 1부터 N까지의 자연수 중 중복을 허용하여 M개를 고른 <strong>오름차순</strong> 수열을 모두 구하는 프로그램을 작성하라.</p>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Input:</strong></span></p>
+    <ul>
+      <li>첫째 줄에 <script type="math/tex">1 \le M \le N \le 8</script>인 자연수 <code class="highlighter-rouge">N</code>과 <code class="highlighter-rouge">M</code>을 <code class="highlighter-rouge">N M</code> 꼴로 입력받는다.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Print:</strong></span></p>
+    <ul>
+      <li>한 줄에 하나씩, 문제의 조건을 만족하는 수열을 출력한다. 각 수열의 수는 공백으로 구분하여 출력한다. 수열은 사전 순으로 출력한다.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<p>중복 조합, 즉 <script type="math/tex">{}_n\mathrm{H}_{r}</script> 문제이다.</p>
+
+<p>예를 들어, 다음을 입력받으면</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">3 1</code></pre></figure>
+
+<p>다음을 출력한다.</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">1
+2
+3</code></pre></figure>
+
+<p>또, 다음을 입력받으면</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">4 2</code></pre></figure>
+
+<p>다음을 출력한다.</p>
+
+<figure class="highlight"><pre><code class="language-language" data-lang="language">1 1
+1 2
+1 3
+1 4
+2 2
+2 3
+2 4
+3 3
+3 4
+4 4</code></pre></figure>
+
+<p>다음과 같은 코드를 작성하였다. 앞선 문제의 해법과 거의 같으며, 역시 재귀 generator를 이용하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="code"><pre><span class="k">def</span> <span class="nf">nHm</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">choose_m</span><span class="p">(</span><span class="n">list</span><span class="p">(</span><span class="n">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">m</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">choose_m</span><span class="p">(</span><span class="no">L</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">m</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="p">[]</span>
+    <span class="ss">else:
+        </span><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">range</span><span class="p">(</span><span class="n">len</span><span class="p">(</span><span class="no">L</span><span class="p">)):</span>
+            <span class="c1"># 이 줄만 다름! L[:i] + L[i+1:] (순열), L[i+1:] (조합), L (중복 순열) 대신 L[i:]</span>
+            <span class="k">for</span> <span class="n">seq</span> <span class="k">in</span> <span class="n">choose_m</span><span class="p">(</span><span class="no">L</span><span class="p">[</span><span class="n">i</span><span class="p">:],</span> <span class="n">m</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="p">[</span><span class="no">L</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">+</span> <span class="n">seq</span>
+
+<span class="n">n_and_m</span> <span class="o">=</span> <span class="n">input</span><span class="p">().</span><span class="nf">split</span><span class="p">(</span><span class="s1">' '</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">seq</span> <span class="k">in</span> <span class="n">nHm</span><span class="p">(</span><span class="n">int</span><span class="p">(</span><span class="n">n_and_m</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">int</span><span class="p">(</span><span class="n">n_and_m</span><span class="p">[</span><span class="mi">1</span><span class="p">])):</span>
+    <span class="k">for</span> <span class="n">num</span> <span class="k">in</span> <span class="ss">seq:
+        </span><span class="nb">print</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="k">end</span><span class="o">=</span><span class="s1">' '</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>채점을 통과하는 것을 확인하였다. N과 M (1) ~ (4) 모두 백트래킹 카테고리에 있는 문제였는데, 백트래킹을 쓰지 않고 풀었다.</p>
+
+:ET

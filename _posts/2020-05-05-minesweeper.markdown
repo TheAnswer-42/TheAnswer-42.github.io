@@ -190,7 +190,7 @@ def render_ascii(game, xray=False):
     return '\n'.join([''.join(row) for row in render_2d(game, xray=xray)])      # row끼리는 \n으로 연결
 {% endhighlight %}
 
-다음으로 N-D *HyperMines*를 위한 helper 함수들을 작성하였다. 본 함수들은 모두 재귀적으로 작성되었다. 이는 임의의 차원에 적용할 수 있어야 하므로, iteration이 불가하기 때문이다 (이 경우 차원만큼 for문을 중첩해야 한다).
+다음으로 N-D *HyperMines*를 위한 보조 함수들을 작성하였다. 본 함수들은 모두 재귀적으로 작성되었다. 이는 임의의 차원에 적용할 수 있어야 하므로, iteration이 불가하기 때문이다 (이 경우 차원만큼 for문을 중첩해야 한다).
 {% highlight ruby linenos=table %}
 def neighbor_indices(loc, dimensions):
     """이웃 타일의 index를 반환하는 generator (귀퉁이 타일에서, 이웃 타일이 없는 경우 반환 X)"""
@@ -238,7 +238,7 @@ def is_masked_bomb(board, mask, loc):
     return is_masked_bomb(board[loc[0]], mask[loc[0]], loc[1:])
 {% endhighlight %}
 
-그 후 위 helper 함수들을 이용하여 N-D *HyperMines*를 위한 `new_game_nd`, `dig_nd`, `render_nd`를 작성하였다.
+그 후 위 보조 함수들을 이용하여 N-D *HyperMines*를 위한 `new_game_nd`, `dig_nd`, `render_nd`를 작성하였다.
 {% highlight ruby linenos=table %}
 def new_game_nd(dimensions, bombs):
     board = create_board(0, dimensions)

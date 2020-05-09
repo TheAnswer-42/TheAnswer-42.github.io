@@ -1,0 +1,275 @@
+---
+layout: post
+title: N과 M (1) ~ (4)
+subtitle: 백준 Online Judge 15649, 15650, 15651, 15652
+date: 2020-05-09
+description: # Add post description (optional)
+img: bj.png # Add image post (optional)
+tags: [Python, Baekjoon, Recursion]
+author: # Add name author (optional)
+---
+Python으로 백준 Online Judge의 문제 15649번 ~ 15652번, [N과 M (1)][15649], [N과 M (2)][15650], [N과 M (3)][15651], [N과 M (4)][15652]를 풀어보자.<br><br>
+
+### **1. N과 M (1) (문제 15649번)**
+> 자연수 `N`과 `M`이 주어졌을 때, 1부터 N까지의 자연수 중 중복 없이 M개를 고른 수열을 모두 구하는 프로그램을 작성하라.
+>> <span style="color:#2d8659">**Input:**</span>
+* 첫째 줄에 $$1 \le M \le N \le 8$$인 자연수 `N`과 `M`을 `N M` 꼴로 입력받는다.
+
+>> <span style="color:#2d8659">**Print:**</span>
+* 한 줄에 하나씩, 문제의 조건을 만족하는 수열을 출력한다. 각 수열의 수는 공백으로 구분하여 출력한다. 수열은 사전 순으로 출력한다.
+
+순열, 즉 $${}_n\mathrm{P}_{r}$$ 문제이다.
+
+예를 들어, 다음을 입력받으면
+{% highlight language %}
+3 1
+{% endhighlight %}
+
+다음을 출력한다.
+{% highlight language %}
+1
+2
+3
+{% endhighlight %}
+
+또, 다음을 입력받으면
+{% highlight language %}
+4 2
+{% endhighlight %}
+
+다음을 출력한다.
+{% highlight language %}
+1 2
+1 3
+1 4
+2 1
+2 3
+2 4
+3 1
+3 2
+3 4
+4 1
+4 2
+4 3
+{% endhighlight %}
+
+다음과 같은 코드를 작성하였다. 재귀 generator를 이용하였다.
+{% highlight ruby linenos=table %}
+def nPm(n, m):
+    return choose_m(list(range(1, n + 1)), m)
+
+def choose_m(L, m):
+    if m == 0:
+        yield []
+    else:
+        for i in range(len(L)):
+            for seq in choose_m(L[:i] + L[i+1:], m-1):
+                yield [L[i]] + seq
+
+n_and_m = input().split(' ')
+for seq in nPm(int(n_and_m[0]), int(n_and_m[1])):
+    for num in seq:
+        print(num, end=' ')
+    print()
+{% endhighlight %}
+
+채점을 통과하는 것을 확인하였다.<br><br>
+
+### **2. N과 M (2) (문제 15650번)**
+> 자연수 `N`과 `M`이 주어졌을 때, 1부터 N까지의 자연수 중 중복 없이 M개를 고른 **오름차순** 수열을 모두 구하는 프로그램을 작성하라.
+>> <span style="color:#2d8659">**Input:**</span>
+* 첫째 줄에 $$1 \le M \le N \le 8$$인 자연수 `N`과 `M`을 `N M` 꼴로 입력받는다.
+
+>> <span style="color:#2d8659">**Print:**</span>
+* 한 줄에 하나씩, 문제의 조건을 만족하는 수열을 출력한다. 각 수열의 수는 공백으로 구분하여 출력한다. 수열은 사전 순으로 출력한다.
+
+조합, 즉 $${}_n\mathrm{C}_{r}$$ 문제이다.
+
+예를 들어, 다음을 입력받으면
+{% highlight language %}
+3 1
+{% endhighlight %}
+
+다음을 출력한다.
+{% highlight language %}
+1
+2
+3
+{% endhighlight %}
+
+또, 다음을 입력받으면
+{% highlight language %}
+4 2
+{% endhighlight %}
+
+다음을 출력한다.
+{% highlight language %}
+1 2
+1 3
+1 4
+2 3
+2 4
+3 4
+{% endhighlight %}
+
+다음과 같은 코드를 작성하였다. 앞선 문제의 해법과 거의 같으며, 역시 재귀 generator를 이용하였다.
+{% highlight ruby linenos=table %}
+def nCm(n, m):
+    return choose_m(list(range(1, n + 1)), m)
+
+def choose_m(L, m):
+    if m == 0:
+        yield []
+    else:
+        for i in range(len(L)):
+            for seq in choose_m(L[i+1:], m-1):    # 이 줄만 다름! L[:i] + L[i+1:] 대신 L[i+1:]
+                yield [L[i]] + seq
+
+n_and_m = input().split(' ')
+for seq in nCm(int(n_and_m[0]), int(n_and_m[1])):
+    for num in seq:
+        print(num, end=' ')
+    print()
+{% endhighlight %}
+
+채점을 통과하는 것을 확인하였다.<br><br>
+
+### **3. N과 M (3) (문제 15651번)**
+> 자연수 `N`과 `M`이 주어졌을 때, 1부터 N까지의 자연수 중 중복을 허용하여 M개를 고른 수열을 모두 구하는 프로그램을 작성하라.
+>> <span style="color:#2d8659">**Input:**</span>
+* 첫째 줄에 $$1 \le M \le N \le 7$$인 자연수 `N`과 `M`을 `N M` 꼴로 입력받는다.
+
+>> <span style="color:#2d8659">**Print:**</span>
+* 한 줄에 하나씩, 문제의 조건을 만족하는 수열을 출력한다. 각 수열의 수는 공백으로 구분하여 출력한다. 수열은 사전 순으로 출력한다.
+
+중복 순열, 즉 $${}_n\mathrm{\Pi}_{r}$$ 문제이다.
+
+예를 들어, 다음을 입력받으면
+{% highlight language %}
+3 1
+{% endhighlight %}
+
+다음을 출력한다.
+{% highlight language %}
+1
+2
+3
+{% endhighlight %}
+
+또, 다음을 입력받으면
+{% highlight language %}
+4 2
+{% endhighlight %}
+
+다음을 출력한다.
+{% highlight language %}
+1 1
+1 2
+1 3
+1 4
+2 1
+2 2
+2 3
+2 4
+3 1
+3 2
+3 3
+3 4
+4 1
+4 2
+4 3
+4 4
+{% endhighlight %}
+
+다음과 같은 코드를 작성하였다. 앞선 문제의 해법과 거의 같으며, 역시 재귀 generator를 이용하였다.
+{% highlight ruby linenos=table %}
+def nPim(n, m):
+    return choose_m(list(range(1, n + 1)), m)
+
+def choose_m(L, m):
+    if m == 0:
+        yield []
+    else:
+        for i in range(len(L)):
+            # 이 줄만 다름! L[:i] + L[i+1:] (순열)이나 L[i+1:] (조합) 대신 L
+            for seq in choose_m(L, m-1):
+                yield [L[i]] + seq
+
+n_and_m = input().split(' ')
+for seq in nPim(int(n_and_m[0]), int(n_and_m[1])):
+    for num in seq:
+        print(num, end=' ')
+    print()
+{% endhighlight %}
+
+채점을 통과하는 것을 확인하였다.<br><br>
+
+### **4. N과 M (4) (문제 15652번)**
+> 자연수 `N`과 `M`이 주어졌을 때, 1부터 N까지의 자연수 중 중복을 허용하여 M개를 고른 **오름차순** 수열을 모두 구하는 프로그램을 작성하라.
+>> <span style="color:#2d8659">**Input:**</span>
+* 첫째 줄에 $$1 \le M \le N \le 8$$인 자연수 `N`과 `M`을 `N M` 꼴로 입력받는다.
+
+>> <span style="color:#2d8659">**Print:**</span>
+* 한 줄에 하나씩, 문제의 조건을 만족하는 수열을 출력한다. 각 수열의 수는 공백으로 구분하여 출력한다. 수열은 사전 순으로 출력한다.
+
+중복 조합, 즉 $${}_n\mathrm{H}_{r}$$ 문제이다.
+
+예를 들어, 다음을 입력받으면
+{% highlight language %}
+3 1
+{% endhighlight %}
+
+다음을 출력한다.
+{% highlight language %}
+1
+2
+3
+{% endhighlight %}
+
+또, 다음을 입력받으면
+{% highlight language %}
+4 2
+{% endhighlight %}
+
+다음을 출력한다.
+{% highlight language %}
+1 1
+1 2
+1 3
+1 4
+2 2
+2 3
+2 4
+3 3
+3 4
+4 4
+{% endhighlight %}
+
+다음과 같은 코드를 작성하였다. 앞선 문제의 해법과 거의 같으며, 역시 재귀 generator를 이용하였다.
+{% highlight ruby linenos=table %}
+def nHm(n, m):
+    return choose_m(list(range(1, n + 1)), m)
+
+def choose_m(L, m):
+    if m == 0:
+        yield []
+    else:
+        for i in range(len(L)):
+            # 이 줄만 다름! L[:i] + L[i+1:] (순열), L[i+1:] (조합), L (중복 순열) 대신 L[i:]
+            for seq in choose_m(L[i:], m-1):
+                yield [L[i]] + seq
+
+n_and_m = input().split(' ')
+for seq in nHm(int(n_and_m[0]), int(n_and_m[1])):
+    for num in seq:
+        print(num, end=' ')
+    print()
+{% endhighlight %}
+
+채점을 통과하는 것을 확인하였다. N과 M (1) ~ (4) 모두 백트래킹 카테고리에 있는 문제였는데, 백트래킹을 쓰지 않고 풀었다.
+
+
+[15649]: https://www.acmicpc.net/problem/15649
+[15650]: https://www.acmicpc.net/problem/15650
+[15651]: https://www.acmicpc.net/problem/15651
+[15652]: https://www.acmicpc.net/problem/15652

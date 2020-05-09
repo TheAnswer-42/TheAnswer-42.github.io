@@ -1,0 +1,272 @@
+I"Ll<p>Python으로 [MIT OCW 6.009] Fundamentals of Programming (2020년 봄) 강의의 다섯 번째 문제, <a href="https://py.mit.edu/spring20/labs/lab5">Lab 5: SAT Solver</a>를 풀어보자 (<a href="/assets/files/6.009-lab5 (2020S).zip" download="">문제 템플릿</a>).</p>
+
+<p>이번 문제에서는 <a href="https://en.wikipedia.org/wiki/Boolean_satisfiability_problem">Boolean satisfiability problem</a>을 다룰 것이다. Python에서는 <code class="highlighter-rouge">not</code>이 <code class="highlighter-rouge">or</code>에 우선하는 것을 주의하라. 즉, <code class="highlighter-rouge">not p or q</code>는 <code class="highlighter-rouge">(not p) or q</code>이다.<br /><br /></p>
+
+<h3 id="1-sat-solver"><strong>1. SAT Solver</strong></h3>
+<p>Boolean 식은 <a href="https://en.wikipedia.org/wiki/Conjunctive_normal_form">Conjunctive normal form (CNF)</a>으로 나타낼 수 있다. CNF에서 <em>literal</em> 은 변수 또는 변수의 <code class="highlighter-rouge">not</code>, <em>clause</em> 는 <code class="highlighter-rouge">or</code>로 연결된 literals, <em>formula</em> 는 <code class="highlighter-rouge">and</code>로 연결된 clauses다. 본 문제에서는 변수를 <code class="highlighter-rouge">string</code>으로, literal을 (변수, <code class="highlighter-rouge">True</code>/<code class="highlighter-rouge">False</code>) 꼴의 <code class="highlighter-rouge">tuple</code> 또는 <code class="highlighter-rouge">list</code>로, clause를 literals의 <code class="highlighter-rouge">list</code>로, formula를 clauses의 <code class="highlighter-rouge">list</code>로 나타낸다. 예를 들어,</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="p">(</span><span class="n">a</span> <span class="n">or</span> <span class="n">c</span><span class="p">)</span> <span class="n">and</span> <span class="p">(</span><span class="n">a</span> <span class="n">or</span> <span class="n">not</span> <span class="n">d</span><span class="p">)</span> <span class="n">and</span> <span class="p">(</span><span class="n">b</span> <span class="n">or</span> <span class="n">c</span><span class="p">)</span></code></pre></figure>
+
+<p>와 같은 CNF Boolean 식을</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="p">[[(</span><span class="s1">'a'</span><span class="p">,</span> <span class="no">True</span><span class="p">),</span> <span class="p">(</span><span class="s1">'c'</span><span class="p">,</span> <span class="no">True</span><span class="p">)],</span> <span class="p">[(</span><span class="s1">'a'</span><span class="p">,</span> <span class="no">True</span><span class="p">),</span> <span class="p">(</span><span class="s1">'d'</span><span class="p">,</span> <span class="no">False</span><span class="p">)],</span> <span class="p">[(</span><span class="s1">'b'</span><span class="p">,</span> <span class="no">True</span><span class="p">),</span> <span class="p">(</span><span class="s1">'c'</span><span class="p">,</span> <span class="no">True</span><span class="p">)]]</span></code></pre></figure>
+
+<p>로 나타낸다.</p>
+
+<p>Boolean 식을 푸는 전통적인 도구는 satisfiability solver, 또는 SAT solver이다. 변수에 가능한 모든 Boolean 조합을 대입하는 brute-force 방법은 바람직하지 않다. Boolean 변수가 <script type="math/tex">N</script>개일 때 조합은 <script type="math/tex">2^N</script>개가 될 것이다. 대신 다음과 같은 방법을 쓰자.</p>
+
+<p>Formula <script type="math/tex">F</script>에서 변수 <code class="highlighter-rouge">x</code>를 고른다. 그 후 <code class="highlighter-rouge">x</code>가 <code class="highlighter-rouge">True</code>일 때 도출되는 formula <script type="math/tex">F_1</script>을 얻는다. <script type="math/tex">F_1</script>을 성공적으로 풀 수 있으면 <code class="highlighter-rouge">x</code>가 <code class="highlighter-rouge">True</code>임을 답에 포함한다. <script type="math/tex">F_1</script>을 풀 수 없으면 <code class="highlighter-rouge">x</code>를 <code class="highlighter-rouge">False</code>로 놓고 재시도한다. 두 경우 모두에서 답을 얻을 수 없으면 <script type="math/tex">F</script>를 만족할 수 없다고 결론짓는다. 예를 들어, 다음과 같은 CNF formula를 보자.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="p">(</span><span class="n">a</span> <span class="n">or</span> <span class="n">b</span> <span class="n">or</span> <span class="n">not</span> <span class="n">c</span><span class="p">)</span> <span class="n">and</span> <span class="p">(</span><span class="n">c</span> <span class="n">or</span> <span class="n">d</span><span class="p">)</span></code></pre></figure>
+
+<p><code class="highlighter-rouge">c</code>를 <code class="highlighter-rouge">True</code>로 놓으면 위 식은 다음과 같이 변한다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="p">(</span><span class="n">a</span> <span class="n">or</span> <span class="n">b</span><span class="p">)</span></code></pre></figure>
+
+<p>이렇게 식을 변형함으로써 보다 효율적인 SAT solver를 작성할 수 있다.<br /><br /></p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">satisfying_assignment</code> 함수를 작성하라.</p>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Arguments:</strong></span></p>
+    <ul>
+      <li><code class="highlighter-rouge">formula</code>: 상술한 <code class="highlighter-rouge">list</code> 형태의 CNF formula.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Return:</strong></span></p>
+    <ul>
+      <li>변수와 <code class="highlighter-rouge">True</code>/<code class="highlighter-rouge">False</code>를 연결하는 <code class="highlighter-rouge">dictionary</code>. 해가 존재하지 않으면 <code class="highlighter-rouge">None</code>.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<p>우선 <code class="highlighter-rouge">satisfying_assignment</code>은 다음과 같이 작성하였다. 단순히 <code class="highlighter-rouge">formula</code>를 <code class="highlighter-rouge">list</code>, <code class="highlighter-rouge">clause</code>를 <code class="highlighter-rouge">set</code>, <code class="highlighter-rouge">literal</code>을 <code class="highlighter-rouge">tuple</code>로 형식을 변경하여 전달하는 역할을 한다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="code"><pre><span class="k">def</span> <span class="nf">satisfying_assignment</span><span class="p">(</span><span class="n">formula</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">sat_solve</span><span class="p">([{</span><span class="n">tuple</span><span class="p">(</span><span class="n">literal</span><span class="p">)</span> <span class="k">for</span> <span class="n">literal</span> <span class="k">in</span> <span class="n">clause</span><span class="p">}</span> <span class="k">for</span> <span class="n">clause</span> <span class="k">in</span> <span class="n">formula</span><span class="p">])</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>그 후 한 변수에 대한 <code class="highlighter-rouge">True</code>/<code class="highlighter-rouge">False</code> 가정을 바탕으로 단순화한 <code class="highlighter-rouge">formula</code>를 반환하는 <code class="highlighter-rouge">simplify_formula</code>를 작성하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="code"><pre><span class="k">def</span> <span class="nf">simplify_formula</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+    <span class="s2">"""var의 val (T/F)를 바탕으로 변형한 formula 반환"""</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">clause</span> <span class="o">-</span> <span class="p">{(</span><span class="n">var</span><span class="p">,</span> <span class="n">not</span> <span class="n">val</span><span class="p">)}</span> <span class="k">for</span> <span class="n">clause</span> <span class="k">in</span> <span class="n">formula</span> <span class="k">if</span> <span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="n">not</span> <span class="k">in</span> <span class="n">clause</span><span class="p">]</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>최종적으로 <code class="highlighter-rouge">sat_solve</code>를 다음과 같이 작성하였다. 효율을 위해, unit clause (literal이 한 개인 clause)가 있으면 먼저 그 clause의 literal을 사용하여 <code class="highlighter-rouge">formula</code>를 풀도록 하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+</pre></td><td class="code"><pre><span class="k">def</span> <span class="nf">sat_solve</span><span class="p">(</span><span class="n">formula</span><span class="p">):</span>
+    <span class="s2">"""reformatted된 CNF formula를 가지고 SAT를 푼다"""</span>
+    <span class="n">assignment</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># 효율을 위해, unit clause (literal이 한 개인 clause)가 있으면 먼저 그 clause에 대해 푼다</span>
+    <span class="k">while</span> <span class="no">True</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">clause</span> <span class="k">in</span> <span class="ss">formula:
+            </span><span class="k">if</span> <span class="n">len</span><span class="p">(</span><span class="n">clause</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">var</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">list</span><span class="p">(</span><span class="n">clause</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">formula</span> <span class="o">=</span> <span class="n">simplify_formula</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">not</span> <span class="n">all</span><span class="p">(</span><span class="n">formula</span><span class="p">):</span>    <span class="c1"># formula에 빈 set 있으면 틀린 clause가 있다는 뜻이므로 해가 없다</span>
+                    <span class="k">return</span> <span class="no">None</span>
+                <span class="n">assignment</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+                <span class="k">break</span>
+        <span class="ss">else:
+            </span><span class="k">break</span>   <span class="c1"># unit clause 없으면 while문 나간다</span>
+
+    <span class="c1"># base case</span>
+    <span class="k">if</span> <span class="n">not</span> <span class="ss">formula:
+        </span><span class="k">return</span> <span class="n">assignment</span>
+
+    <span class="c1"># recursive case</span>
+    <span class="c1"># left-first search: 첫 clause의 첫 literal이 옳다고 가정 후 (left branch) 해 있으면 반환,</span>
+    <span class="c1">#                    아니면 틀리다고 가정 후 (right branch) 해 있으면 반환</span>
+    <span class="n">var</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">list</span><span class="p">(</span><span class="n">formula</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">val</span> <span class="k">in</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">not</span> <span class="n">b</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">sat_solve</span><span class="p">(</span><span class="n">simplify_formula</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">val</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="n">is</span> <span class="n">not</span> <span class="no">None</span><span class="p">:</span>
+            <span class="n">assignment</span><span class="p">.</span><span class="nf">update</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="n">assignment</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+            <span class="k">return</span> <span class="n">assignment</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>문제 템플릿과 함께 주어진 <code class="highlighter-rouge">test.py</code> 중 <code class="highlighter-rouge">Test_1_Sat</code>와 <code class="highlighter-rouge">Test_2_PuzzleSudoku</code>의 테스트를 모두 통과하는 것을 확인하였다.<br /><br /></p>
+
+<h3 id="2-scheduling-by-reduction"><strong>2. Scheduling by Reduction</strong></h3>
+<p>이제 CNF formula가 주어지면 <code class="highlighter-rouge">satisfying_assignment</code>로 풀 수 있게 되었다. 그렇다면 Boolean 식을 CNF formula로 만들어보자.</p>
+
+<p>학생들이 시험을 치기 위해 방을 배정받아야 한다고 하자. 각 학생이 선호하는 방이 있으며, 각 방은 수용 인원이 정해져 있다. 이때 모든 조건을 만족하도록 학생을 방에 배정하는 경우 (schedule)를 찾아라.<br /></p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">boolify_scheduling_problem</code> 함수를 작성하라.</p>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Arguments:</strong></span></p>
+    <ul>
+      <li><code class="highlighter-rouge">student_preferences</code>: 학생 이름 (string)과 그 학생이 선호하는 방 이름 (string)의 <code class="highlighter-rouge">set</code>를 연결하는 <code class="highlighter-rouge">dictionary</code>.</li>
+      <li><code class="highlighter-rouge">session_capacities</code>: 방 이름 (string)과 그 방의 수용 인원 (integer)을 연결하는 <code class="highlighter-rouge">dictionary</code>.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <p><span style="color:#2d8659"><strong>Return:</strong></span></p>
+    <ul>
+      <li><code class="highlighter-rouge">student_preferences</code>와 <code class="highlighter-rouge">session_capacities</code>를 고려한 CNF formula.</li>
+    </ul>
+  </blockquote>
+</blockquote>
+
+<p>반환되는 CNF formula의 변수는 <code class="highlighter-rouge">student_session</code>의 형태이다 (<code class="highlighter-rouge">student</code>는 학생 이름, <code class="highlighter-rouge">session</code>은 방 이름).</p>
+
+<p>호출 예시는 다음과 같다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="code"><pre><span class="n">boolify_scheduling_problem</span><span class="p">({</span><span class="s1">'Alice'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'basement'</span><span class="p">,</span> <span class="s1">'penthouse'</span><span class="p">},</span>
+                            <span class="s1">'Bob'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'kitchen'</span><span class="p">},</span>
+                            <span class="s1">'Charles'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'basement'</span><span class="p">,</span> <span class="s1">'kitchen'</span><span class="p">},</span>
+                            <span class="s1">'Dana'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'kitchen'</span><span class="p">,</span> <span class="s1">'penthouse'</span><span class="p">,</span> <span class="s1">'basement'</span><span class="p">}},</span>
+                           <span class="p">{</span><span class="s1">'basement'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                            <span class="s1">'kitchen'</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                            <span class="s1">'penthouse'</span><span class="p">:</span> <span class="mi">4</span><span class="p">})</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+<p><br /></p>
+
+<h4 id="21-students-only-in-desired-rooms"><strong>2.1. Students Only in Desired Rooms</strong></h4>
+<p>CNF formula를 만들기 위한 규칙을 세 가지로 나눌 수 있다. 그 첫 번째로, 한 학생이 선호하는 방 중 하나에 그 학생을 배정해야 한다. 예를 들어, 위의 예시에서 Charles는 basement 또는 kitchen에 배정되어야 하며, Alice는 basement 또는 penthouse에 배정되어야 한다.<br /></p>
+
+<h4 id="22-each-student-in-exactly-one-session"><strong>2.2. Each Student in Exactly One Session</strong></h4>
+<p>두 번째 규칙으로, 각 학생은 한 방에만 배정되어야 한다. 즉 각 학생은 최소 한 방에 배정되어야 하며, 최대 한 방에 배정되어야 한다. 전자는 위의 <strong>2.1</strong> 규칙으로 만족되므로 후자만 고려하면 된다. 예를 들어, 위의 예시에서 <code class="highlighter-rouge">Bob_kitchen</code>과 <code class="highlighter-rouge">Bob_basement</code>는 동시에 <code class="highlighter-rouge">True</code>일 수 없다 (하나는 <code class="highlighter-rouge">False</code>여야 한다).<br /></p>
+
+<h4 id="23-no-oversubscribed-sections"><strong>2.3. No Oversubscribed Sections</strong></h4>
+<p>마지막 규칙으로, 방의 수용 인원을 넘어서 배정될 수 없다. 이를 다음과 같이 생각할 수 있다. 방의 수용 인원이 <script type="math/tex">N</script>명일 때, 모든 <script type="math/tex">N + 1</script>명의 학생 조합에서, 한 조합당 최소 한 명은 그 방에 배정될 수 없다.<br /></p>
+
+<h4 id="24-문제-풀이"><strong>2.4. 문제 풀이</strong></h4>
+<p>첫 번째로 <strong>2.1</strong> 규칙으로 CNF formula를 만드는 함수를 작성하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="code"><pre><span class="k">def</span> <span class="nf">rule1</span><span class="p">(</span><span class="n">student_preferences</span><span class="p">):</span>
+    <span class="s2">"""Rule 1: Students Only In Desired Rooms"""</span>
+    <span class="k">return</span> <span class="p">[{(</span><span class="n">student</span> <span class="o">+</span> <span class="s1">'_'</span> <span class="o">+</span> <span class="n">session</span><span class="p">,</span> <span class="no">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">session</span> <span class="k">in</span> <span class="n">student_preferences</span><span class="p">[</span><span class="n">student</span><span class="p">]}</span>
+            <span class="k">for</span> <span class="n">student</span> <span class="k">in</span> <span class="n">student_preferences</span><span class="p">]</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>두 번째로 <strong>2.2</strong> 규칙으로 CNF formula를 만드는 함수를 작성하였다. 조합을 생성하는 generator <code class="highlighter-rouge">comb</code>도 작성하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="code"><pre><span class="k">def</span> <span class="nf">comb</span><span class="p">(</span><span class="no">L</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="s2">"""list L에서 n개 원소를 뽑는 모든 조합을 생성하는 generator"""</span>
+    <span class="k">if</span> <span class="n">not</span> <span class="ss">n:
+        </span><span class="k">yield</span> <span class="p">[]</span>
+    <span class="ss">else:
+        </span><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">range</span><span class="p">(</span><span class="n">len</span><span class="p">(</span><span class="no">L</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">subcomb</span> <span class="k">in</span> <span class="n">comb</span><span class="p">(</span><span class="no">L</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:],</span> <span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="p">[</span><span class="no">L</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">+</span> <span class="n">subcomb</span>
+
+<span class="k">def</span> <span class="nf">rule2</span><span class="p">(</span><span class="n">student_preferences</span><span class="p">):</span>
+    <span class="s2">"""Rule 2: Each Student In Exactly One Session (각 학생이 최대 한 개의 session에 있어야 한다)"""</span>
+    <span class="k">return</span> <span class="p">[{(</span><span class="n">student</span> <span class="o">+</span> <span class="s1">'_'</span> <span class="o">+</span> <span class="n">session</span><span class="p">,</span> <span class="no">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">session</span> <span class="k">in</span> <span class="n">session_comb</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">student</span> <span class="k">in</span> <span class="n">student_preferences</span> <span class="k">for</span> <span class="n">session_comb</span> <span class="k">in</span> <span class="n">comb</span><span class="p">(</span><span class="n">list</span><span class="p">(</span><span class="n">student_preferences</span><span class="p">[</span><span class="n">student</span><span class="p">]),</span> <span class="mi">2</span><span class="p">)]</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>세 번째로 <strong>2.3</strong> 규칙으로 CNF formula를 만드는 함수를 작성하였다. 위에서 작성한 <code class="highlighter-rouge">comb</code>을 사용하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="code"><pre><span class="k">def</span> <span class="nf">rule3</span><span class="p">(</span><span class="n">student_preferences</span><span class="p">,</span> <span class="n">session_capacities</span><span class="p">):</span>
+    <span class="s2">"""Rule 3: No Oversubscribed Sections"""</span>
+    <span class="n">formula</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">students</span> <span class="o">=</span> <span class="n">list</span><span class="p">(</span><span class="n">student_preferences</span><span class="p">.</span><span class="nf">keys</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">session</span><span class="p">,</span> <span class="n">capacity</span> <span class="k">in</span> <span class="n">session_capacities</span><span class="p">.</span><span class="nf">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">capacity</span> <span class="o">&gt;=</span> <span class="n">len</span><span class="p">(</span><span class="n">students</span><span class="p">):</span>   <span class="c1"># capacity가 학생 수 이상이면 rule3 필요 없다</span>
+            <span class="n">continue</span>
+        <span class="k">for</span> <span class="n">student_comb</span> <span class="k">in</span> <span class="n">comb</span><span class="p">(</span><span class="n">students</span><span class="p">,</span> <span class="n">capacity</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">formula</span><span class="p">.</span><span class="nf">append</span><span class="p">({(</span><span class="n">student</span> <span class="o">+</span> <span class="s1">'_'</span> <span class="o">+</span> <span class="n">session</span><span class="p">,</span> <span class="no">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">student</span> <span class="k">in</span> <span class="n">student_comb</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">formula</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>최종적으로 위 세 함수로 만든 CNF formula를 합치는 함수 <code class="highlighter-rouge">boolify_scheduling_problem</code>을 작성하였다.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="code"><pre><span class="k">def</span> <span class="nf">boolify_scheduling_problem</span><span class="p">(</span><span class="n">student_preferences</span><span class="p">,</span> <span class="n">session_capacities</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">rule1</span><span class="p">(</span><span class="n">student_preferences</span><span class="p">)</span> <span class="o">+</span>
+           <span class="n">rule2</span><span class="p">(</span><span class="n">student_preferences</span><span class="p">)</span> <span class="o">+</span>
+           <span class="n">rule3</span><span class="p">(</span><span class="n">student_preferences</span><span class="p">,</span> <span class="n">session_capacities</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>문제 템플릿과 함께 주어진 <code class="highlighter-rouge">test.py</code> 중 <code class="highlighter-rouge">Test_3_Scheduling</code>의 테스트를 모두 통과하는 것을 확인하였다.<br /><br /></p>
+
+<h3 id="3-끝맺음"><strong>3. 끝맺음</strong></h3>
+<p>이것으로 [MIT OCW 6.009] Fundamentals of Programming (2020년 봄) 강의의 다섯 번째 문제, <a href="https://py.mit.edu/spring20/labs/lab5">Lab 5: SAT Solver</a> 풀이를 완료하였다. 백트래킹을 연습할 수 있는 문제였다.</p>
+
+:ET
